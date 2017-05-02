@@ -16,7 +16,7 @@ from ..utils.checkurl import checkurl
 from ..utils.changeip import validate_ip
 from ..utils.decorators import admin_required
 from ..utils.createuuid import createuuid
-from .raw_sql import BUSINESS_HOST_IDC_DATA, HOST_IDC_SERVICE_BUSINESS_DATA
+from .raw_sql import BUSINESS_HOST_IDC_DATA, HOST_IDC_SERVICE_BUSINESS_DATA, SERVICE_BUSINESS_TOTAL_DATA
 
 asset = Blueprint('asset', __name__)
 
@@ -859,6 +859,19 @@ def app_batch_delete_data():
                     db.session.delete(_service)
         db.session.commit()
     return jsonify({'error': _error})
+
+
+@asset.route('/app_batch_output_data/')
+@login_required
+@admin_required
+def app_batch_output_data():
+    headers = ['应用名称', '应用说明', '端口', '内网IP', '公网IP', '所属业务', '优先级', '运行账户', '数据库实例', '基础依赖', '所属域名', '负责人', '负责人邮箱', '备注']
+    _results = db.session.execute(SERVICE_BUSINESS_TOTAL_DATA).fetchall()
+    data = tablib.Dataset(*_results, headers=headers)
+    ret = make_response(data.xlsx)
+    filename = '{}.xlsx'.format('SERVICE_BUSINESS_DATA')
+    ret.headers["Content-Disposition"] = "attachment; filename={}".format(filename)
+    return ret
 
 
 @asset.route('/app_batch_create/', methods=['GET', 'POST'])
