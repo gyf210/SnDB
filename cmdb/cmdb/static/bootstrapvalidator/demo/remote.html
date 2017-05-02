@@ -3,12 +3,12 @@
 <head>
     <title>BootstrapValidator demo</title>
 
-    <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.css"/>
-    <link rel="stylesheet" href="/dist/css/bootstrapValidator.css"/>
+     <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.css"/>
+    <link rel="stylesheet" href="../dist/css/bootstrapValidator.css"/>
 
-    <script type="text/javascript" src="/vendor/jquery/jquery-1.10.2.min.js"></script>
-    <script type="text/javascript" src="/vendor/bootstrap/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/dist/js/bootstrapValidator.js"></script>
+    <script type="text/javascript" src="../vendor/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../dist/js/bootstrapValidator.js"></script>
 </head>
 <body>
     <div class="container">
@@ -31,7 +31,14 @@
                         <div class="form-group">
                             <label class="col-lg-3 control-label">Email address</label>
                             <div class="col-lg-5">
-                                <input type="text" class="form-control" name="email" autocomplete="off" />
+                                <input type="text" class="form-control" name="email[]" autocomplete="off" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">Other email address</label>
+                            <div class="col-lg-5">
+                                <input type="text" class="form-control" name="email[]" autocomplete="off" />
                             </div>
                         </div>
 
@@ -109,8 +116,10 @@ $(document).ready(function() {
                         message: 'The username is required and can\'t be empty'
                     },
                     remote: {
+                        type: 'POST',
                         url: 'remote.php',
-                        message: 'The username is not available'
+                        message: 'The username is not available',
+                        delay: 1000
                     },
                     different: {
                         field: 'password',
@@ -118,7 +127,7 @@ $(document).ready(function() {
                     }
                 }
             },
-            email: {
+            'email[]': {
                 validators: {
                     notEmpty: {
                         message: 'The email address is required and can\'t be empty'
@@ -127,8 +136,10 @@ $(document).ready(function() {
                         message: 'The input is not a valid email address'
                     },
                     remote: {
+                        type: 'POST',
                         url: 'remote.php',
-                        message: 'The email is not available'
+                        message: 'The email is not available',
+                        delay: 2000
                     }
                 }
             },

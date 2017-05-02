@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.css"/>
     <link rel="stylesheet" href="../dist/css/bootstrapValidator.css"/>
 
-    <script type="text/javascript" src="../vendor/jquery/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="../vendor/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="../vendor/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../dist/js/bootstrapValidator.js"></script>
 </head>
@@ -43,7 +43,7 @@
                                    data-bv-message="The username is not valid"
                                    required data-bv-notempty-message="The username is required and cannot be empty"
                                    pattern="[a-zA-Z0-9_\.]+" data-bv-regexp-message="The username can only consist of alphabetical, number, dot and underscore"
-                                    />
+                                   minlength="5" data-bv-stringlength-message="The username must have at least 5 characters" />
                         </div>
                     </div>
 
@@ -71,8 +71,7 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label">Age</label>
                         <div class="col-lg-2">
-                            <input type="text" class="form-control" name="age"
-                                   required
+                            <input type="number" class="form-control" name="age" step="1"
                                    min="10" data-bv-greaterthan-inclusive="false" data-bv-greaterthan-message="The input must be greater than or equal to 10"
                                    max="100" data-bv-lessthan-inclusive="true" data-bv-lessthan-message="The input must be less than 100"
                                     />

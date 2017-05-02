@@ -1,7 +1,11 @@
 (function($) {
+    $.fn.bootstrapValidator.i18n.hexColor = $.extend($.fn.bootstrapValidator.i18n.hexColor || {}, {
+        'default': 'Please enter a valid hex color'
+    });
+
     $.fn.bootstrapValidator.validators.hexColor = {
         enableByHtml5: function($field) {
-            return ('color' == $field.attr('type'));
+            return ('color' === $field.attr('type'));
         },
 
         /**
@@ -15,10 +19,15 @@
          */
         validate: function(validator, $field, options) {
             var value = $field.val();
-            if (value == '') {
+            if (value === '') {
                 return true;
             }
-            return /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(value);
+
+            return ('color' === $field.attr('type'))
+                        // Only accept 6 hex character values due to the HTML 5 spec
+                        // See http://www.w3.org/TR/html-markup/input.color.html#input.color.attrs.value
+                        ? /^#[0-9A-F]{6}$/i.test(value)
+                        : /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(value);
         }
     };
 }(window.jQuery));

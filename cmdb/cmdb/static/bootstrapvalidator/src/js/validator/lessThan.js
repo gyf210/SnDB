@@ -1,4 +1,9 @@
 (function($) {
+    $.fn.bootstrapValidator.i18n.lessThan = $.extend($.fn.bootstrapValidator.i18n.lessThan || {}, {
+        'default': 'Please enter a value less than or equal to %s',
+        notInclusive: 'Please enter a value less than %s'
+    });
+
     $.fn.bootstrapValidator.validators.lessThan = {
         html5Attributes: {
             message: 'message',
@@ -7,8 +12,9 @@
         },
 
         enableByHtml5: function($field) {
-            var max = $field.attr('max');
-            if (max) {
+            var type = $field.attr('type'),
+                max  = $field.attr('max');
+            if (max && type !== 'date') {
                 return {
                     value: max
                 };
@@ -23,18 +29,44 @@
          * @param {BootstrapValidator} validator The validator plugin instance
          * @param {jQuery} $field Field element
          * @param {Object} options Can consist of the following keys:
-         * - value: The number used to compare to
+         * - value: The number used to compare to. It can be
+         *      - A number
+         *      - Name of field which its value defines the number
+         *      - Name of callback function that returns the number
+         *      - A callback function that returns the number
+         *
          * - inclusive [optional]: Can be true or false. Default is true
          * - message: The invalid message
-         * @returns {Boolean}
+         * @returns {Boolean|Object}
          */
         validate: function(validator, $field, options) {
             var value = $field.val();
-            if (value == '') {
+            if (value === '') {
                 return true;
             }
+            
+			value = this._format(value);
+            if (!$.isNumeric(value)) {
+                return false;
+            }
+
+            var compareTo      = $.isNumeric(options.value) ? options.value : validator.getDynamicOption($field, options.value),
+                compareToValue = this._format(compareTo);
+
             value = parseFloat(value);
-            return (options.inclusive === false) ? (value <= options.value) : (value < options.value);
+            return (options.inclusive === true || options.inclusive === undefined)
+                    ? {
+                        valid: value <= compareToValue,
+                        message: $.fn.bootstrapValidator.helpers.format(options.message || $.fn.bootstrapValidator.i18n.lessThan['default'], compareTo)
+                    }
+                    : {
+                        valid: value < compareToValue,
+                        message: $.fn.bootstrapValidator.helpers.format(options.message || $.fn.bootstrapValidator.i18n.lessThan.notInclusive, compareTo)
+                    };
+        },
+
+        _format: function(value) {
+            return (value + '').replace(',', '.');
         }
     };
 }(window.jQuery));

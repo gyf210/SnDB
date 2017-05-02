@@ -6,14 +6,13 @@
     <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.css"/>
     <link rel="stylesheet" href="../dist/css/bootstrapValidator.css"/>
 
-    <script type="text/javascript" src="../vendor/jquery/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="../vendor/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="../vendor/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../dist/js/bootstrapValidator.js"></script>
 </head>
 <body>
 <div class="container">
     <div class="row">
-        <!-- form: -->
         <section>
             <div class="col-lg-8 col-lg-offset-2">
                 <div class="page-header">
@@ -108,44 +107,43 @@
                 </form>
             </div>
         </section>
-        <!-- :form -->
     </div>
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function() {
-        $('#defaultForm').bootstrapValidator({
-            message: 'This value is not valid',
-            feedbackIcons: {
-                valid: 'glyphicon glyphicon-ok',
-                invalid: 'glyphicon glyphicon-remove',
-                validating: 'glyphicon glyphicon-refresh'
+$(document).ready(function() {
+    $('#defaultForm').bootstrapValidator({
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        container: 'tooltip',
+        fields: {
+            gender: {
+                validators: {
+                    notEmpty: {
+                        message: 'The gender is required'
+                    }
+                }
             },
-            fields: {
-                gender: {
-                    validators: {
-                        notEmpty: {
-                            message: 'The gender is required'
-                        }
+            'browsers[]': {
+                validators: {
+                    notEmpty: {
+                        message: 'Please specify at least one browser you use daily for development'
                     }
-                },
-                'browsers[]': {
-                    validators: {
-                        notEmpty: {
-                            message: 'Please specify at least one browser you use daily for development'
-                        }
-                    }
-                },
-                'editors[]': {
-                    validators: {
-                        notEmpty: {
-                            message: 'The editor names are required'
-                        }
+                }
+            },
+            'editors[]': {
+                validators: {
+                    notEmpty: {
+                        message: 'The editor names are required'
                     }
                 }
             }
-        });
+        }
     });
+});
 </script>
 </body>
 </html>

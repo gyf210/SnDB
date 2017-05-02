@@ -1,4 +1,8 @@
 (function($) {
+    $.fn.bootstrapValidator.i18n.different = $.extend($.fn.bootstrapValidator.i18n.different || {}, {
+        'default': 'Please enter a different value'
+    });
+
     $.fn.bootstrapValidator.validators.different = {
         html5Attributes: {
             message: 'message',
@@ -17,21 +21,28 @@
          */
         validate: function(validator, $field, options) {
             var value = $field.val();
-            if (value == '') {
+            if (value === '') {
                 return true;
             }
 
-            var compareWith = validator.getFieldElements(options.field);
-            if (compareWith == null) {
-                return true;
+            var fields  = options.field.split(','),
+                isValid = true;
+
+            for (var i = 0; i < fields.length; i++) {
+                var compareWith = validator.getFieldElements(fields[i]);
+                if (compareWith == null || compareWith.length === 0) {
+                    continue;
+                }
+
+                var compareValue = compareWith.val();
+                if (value === compareValue) {
+                    isValid = false;
+                } else if (compareValue !== '') {
+                    validator.updateStatus(compareWith, validator.STATUS_VALID, 'different');
+                }
             }
 
-            if (value != compareWith.val()) {
-                validator.updateStatus(options.field, validator.STATUS_VALID, 'different');
-                return true;
-            } else {
-                return false;
-            }
+            return isValid;
         }
     };
 }(window.jQuery));

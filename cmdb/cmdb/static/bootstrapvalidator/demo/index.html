@@ -9,7 +9,7 @@
     <!-- Include the FontAwesome CSS if you want to use feedback icons provided by FontAwesome -->
     <!--<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" />-->
 
-    <script type="text/javascript" src="../vendor/jquery/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="../vendor/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="../vendor/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../dist/js/bootstrapValidator.js"></script>
 </head>
@@ -177,6 +177,7 @@
                         <div class="form-group">
                             <div class="col-lg-9 col-lg-offset-3">
                                 <button type="submit" class="btn btn-primary" name="signup" value="Sign up">Sign up</button>
+                                <button type="submit" class="btn btn-primary" name="signup2" value="Sign up 2">Sign up 2</button>
                                 <button type="button" class="btn btn-info" id="validateBtn">Manual validate</button>
                                 <button type="button" class="btn btn-info" id="resetBtn">Reset form</button>
                             </div>
@@ -206,6 +207,7 @@ $(document).ready(function() {
         },
         fields: {
             firstName: {
+                group: '.col-lg-4',
                 validators: {
                     notEmpty: {
                         message: 'The first name is required and cannot be empty'
@@ -213,6 +215,7 @@ $(document).ready(function() {
                 }
             },
             lastName: {
+                group: '.col-lg-4',
                 validators: {
                     notEmpty: {
                         message: 'The last name is required and cannot be empty'
@@ -235,11 +238,12 @@ $(document).ready(function() {
                         message: 'The username can only consist of alphabetical, number, dot and underscore'
                     },
                     remote: {
+                        type: 'POST',
                         url: 'remote.php',
                         message: 'The username is not available'
                     },
                     different: {
-                        field: 'password',
+                        field: 'password,confirmPassword',
                         message: 'The username and password cannot be the same as each other'
                     }
                 }

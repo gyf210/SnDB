@@ -1,8 +1,16 @@
 (function($) {
+    $.fn.bootstrapValidator.i18n.numeric = $.extend($.fn.bootstrapValidator.i18n.numeric || {}, {
+        'default': 'Please enter a valid float number'
+    });
+
     $.fn.bootstrapValidator.validators.numeric = {
         html5Attributes: {
             message: 'message',
             separator: 'separator'
+        },
+
+        enableByHtml5: function($field) {
+            return ('number' === $field.attr('type')) && ($field.attr('step') !== undefined) && ($field.attr('step') % 1 !== 0);
         },
 
         /**
@@ -16,12 +24,16 @@
          * @returns {Boolean}
          */
         validate: function(validator, $field, options) {
+            if (this.enableByHtml5($field) && $field.get(0).validity && $field.get(0).validity.badInput === true) {
+                return false;
+            }
+
             var value = $field.val();
-            if (value == '') {
+            if (value === '') {
                 return true;
             }
             var separator = options.separator || '.';
-            if (separator != '.') {
+            if (separator !== '.') {
                 value = value.replace(separator, '.');
             }
 
