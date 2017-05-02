@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>运维管理平台</title>
+		<link rel="Shortcut Icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='font-awesome/css/font-awesome.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/animate.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    </head>
+
+    <body class="gray-bg">
+		<div class="middle-box text-center animated fadeInDown">
+			<h1>404</h1>
+			<h3 class="font-bold">Page Not Found</h3>
+
+			<div class="error-desc">
+				Sorry, but the page you are looking for has note been found. Try checking the URL for error....<a href="{{ url_for('home.index') }}">Please, Next,</a>
+			</div>
+		</div>
+	
+        <script src="{{ url_for('static', filename='js/jquery-2.1.1.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    </body>
+</html>

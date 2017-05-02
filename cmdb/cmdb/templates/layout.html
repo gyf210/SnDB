@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应用信息管理平台</title>
+	<link rel="Shortcut Icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/font-awesome/css/font-awesome.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/plugins/iCheck/custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/animate.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css') }}" rel="stylesheet">
+	<link href="{{ url_for('static', filename='bootstrap-select/dist/css/bootstrap-select.min.css') }}" rel="stylesheet">
+	<link href="{{ url_for('static', filename='css/plugins/sweetalert/sweetalert.css') }}" rel="stylesheet">
+	<link href="{{ url_for('static', filename='bootstrapvalidator/dist/css/bootstrapValidator.min.css') }}" rel="stylesheet">
+	{% block link %}{% endblock %}
+    <style>
+        {% block style %}{% endblock %}
+    </style>
+</head>
+
+<body>
+    <div id="wrapper">
+		<nav class="navbar-default navbar-static-side" role="navigation">
+			<div class="sidebar-collapse">
+				<ul class="nav metismenu" id="side-menu">
+					<li class="nav-header">
+						<div class="dropdown profile-element">
+							<span>
+								<img alt="image" class="img-circle" src="/static/uploads/avatar/{{ current_user.avatar_hash }}" />
+                            </span>
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+								<span class="clear">
+									<span class="block m-t-xs">
+										<strong class="font-bold">欢迎，{{ current_user.name }}</strong>
+									</span>
+									<span class="text-muted text-xs block"><b class="caret"></b>
+									</span>
+								</span>
+							</a>
+							<ul class="dropdown-menu animated fadeInRight m-t-xs">
+								<li><a href="{{ url_for('auth.change_password') }}">个人设置</a></li>
+								<li class="divider"></li>
+								<li><a href="{{ url_for('auth.logout') }}">登出</a></li>
+							</ul>
+						</div>
+						<div class="logo-element">
+							<a href="/">LeDB</a>
+						</div>
+					</li>
+
+					{% if current_user.role.permissions == 255 %}
+					<li class="asset">
+						<a href="#"><i class="fa fa-th-large" aria-hidden="true"></i> <span class="nav-label">资产管理</span><span class="fa arrow"></span></a>
+						<ul class="nav nav-second-level">
+
+							<li class="idc_list">
+								<a href="#">机房管理<span class="fa arrow"></span></a>
+								<ul class="nav nav-third-level">
+									<li class="idc_list"><a href="{{ url_for('asset.idc_list') }}">机房操作</a></li>
+								</ul>	
+							</li>
+							
+							<li class="business_list business_tree">
+								<a href="#">业务管理<span class="fa arrow"></span></a>
+								<ul class="nav nav-third-level">
+									<li class="business_tree"><a href="{{ url_for('asset.business_tree') }}">业务Tree</a></li>
+									<li class="business_list"><a href="{{ url_for('asset.business_list') }}">业务操作</a></li>
+								</ul>
+							</li>
+							
+							<li class="host_list">
+								<a href="#">主机管理<span class="fa arrow"></span></a>
+								<ul class="nav nav-third-level">
+									<li class="host_list"><a href="{{ url_for('asset.host_list') }}">主机操作</a></li>
+								</ul>								
+							</li>
+
+							<li class="app_list app_check app_batch_create">
+								<a href="#">服务管理<span class="fa arrow"></span></a>
+								<ul class="nav nav-third-level">
+									<li class="app_list app_batch_create"><a href="{{ url_for('asset.app_list') }}">服务操作</a></li>
+									<li class="app_check"><a href="{{ url_for('asset.app_check') }}">服务校验</a></li>
+								</ul>								
+							</li>							
+																				
+							<!-- <li class="salt">
+								<a href="#">系统管理<span class="fa arrow"></span></a>
+								<ul class="nav nav-third-level">
+									<li><a href="/salt/install/">安装系统</a></li>
+									<li><a href="/salt/status/">主机上报</a></li>
+									<li><a href="/salt/key_list/">Salt认证管理</a></li>
+								</ul>
+							</li>
+							
+							<li class="project service_add service_list">
+								<a href="#">项目管理<span class="fa arrow"></span></a>
+								<ul class="nav nav-third-level">
+									<li><a href="/assets/server/type/list/" >项目列表</a></li>
+									<li><a href="/assets/server/type/add/" >添加项目</a></li>
+									<li class="service_add"><a href="/assets/service_add/" >添加服务</a></li>
+									<li class="service_list"><a href="/assets/service_list/" >服务列表</a></li>
+									<li><a href="/assets/product/add/" >添加产品线</a></li>
+									<li><a href="/assets/product/list/" >产品线列表</a></li>
+									<li><a href="/conf/project/code/add/" > 添加代码仓库</a></li>
+									<li><a href="/assets/server/host_without_business/" > 未分配项目主机</a></li>
+								</ul>
+							</li> -->
+						</ul>
+					</li>
+					{% endif %}
+					
+					<li class="info">
+						<a href="#"><i class="fa fa-diamond" aria-hidden="true"></i> <span class="nav-label">资产查询</span><span class="fa arrow"></span></a>
+						<ul class="nav nav-second-level">
+							<!-- <li class="info_list"> -->
+								<!-- <a href="{{ url_for('info.info_list') }}">资产概述</a> -->
+							<!-- </li> -->
+							<li class="host_list">
+								<a href="{{ url_for('info.host_list') }}">主机查询</a>
+							</li>
+							<li class="service_list">
+								<a href="{{ url_for('info.service_list') }}">服务查询</a>
+							</li>
+						</ul>
+					</li>
+											
+					<!-- <li class="monitor">
+						<a href="#"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">业务监控</span><span class="fa arrow"></span></a>
+						<ul class="nav nav-second-level">
+							<li class="http">
+								<a href="#">RetCode监控<span class="fa arrow"></span></a>
+								<ul class="nav nav-third-level">
+									<li><a href="/monitor/http/add/">添加监控</a></li>
+									<li><a href="/monitor/http/list/">监控列表</a></li>
+								</ul>
+							</li>
+							<li class="mysql">
+								<a href="#">基础资源监控<span class="fa arrow"></span></a>
+								<ul class="nav nav-third-level">
+									<li><a href="/monitor/http/add/">添加监控</a></li>
+									<li><a href="/monitor/http/list/">监控列表</a></li>
+								</ul>
+							</li>
+							<li class="mysql">
+								<a href="#">应用资源监控<span class="fa arrow"></span></a>
+								<ul class="nav nav-third-level">
+									<li><a href="/monitor/http/add/">添加监控</a></li>
+									<li><a href="/monitor/http/list/">监控列表</a></li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+
+					<li class="incident">
+						<a href="###"><i class="fa fa-files-o"></i> <span class="nav-label">事件管理</span><span class="fa arrow"></span></a>
+						<ul class="nav nav-second-level">
+							<li><a href="/incident/add/">添加故障</a></li>
+							<li><a href="/incident/nodone/">待处理故障</a></li>
+							<li><a href="/incident/my/">我的故障</a></li>
+							<li><a href="/incident/classical/">精典案例</a></li>
+							<li><a href="/incident/done/">已处理故障</a></li>
+						</ul>
+					</li>
+
+					{% if current_user.role.permissions >= 3 %}
+					<li class="swan auto">
+						<a href="###"><i class="fa fa-cube"></i> <span class="nav-label">自动化运维</span><span class="fa arrow"></span></a>
+						<ul class="nav nav-second-level">
+
+							<li><a href="/swan/apply//">发布申请</a></li>
+						</ul>
+					</li>
+					{% endif %} -->
+
+					{% if current_user.role.permissions == 255 %}
+					<!-- <li class="logs"> -->
+						<!-- <a href="#"><i class="glyphicon glyphicon-eye-open"></i> <span class="nav-label">日志审计</span><span class="fa arrow"></span></a> -->
+						<!-- <ul class="nav nav-second-level"> -->
+							<!-- <li><a href="/logs/host/"><i class="glyphicon glyphicon-tint"></i>服务器操作记录</a></li> -->
+						<!-- </ul> -->
+					<!-- </li> -->
+
+					<!-- <li class="permission"> -->
+						<!-- <a href="#"><i class="glyphicon glyphicon-briefcase"></i> <span class="nav-label">权限系统</span> <span class="fa arrow"></span></a> -->
+						<ul class="nav nav-second-level collapse">
+							<li><a href="{{ url_for('auth.change_password') }}">密码修改</a></li>
+						</ul>
+					<!-- </li> -->
+
+					<li class="account">
+						<a href="#"><i class="fa fa-desktop" aria-hidden="true"></i> <span class="nav-label">账户中心</span><span class="fa arrow"></span></a>
+						<ul class="nav nav-second-level">
+							<li class="user_list user_disable user_unactivate"><a href="{{ url_for('account.index') }}">账户管理</a></li>
+						</ul>
+					</li>
+					{% endif %}
+				</ul>
+			</div>
+		</nav>
+
+        <div id="page-wrapper" class="gray-bg">
+			<div class="row border-bottom">
+				<nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+					<div class="navbar-header">
+						<a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+						<form role="search" class="navbar-form-custom" action="search_results.html">
+							<div class="form-group">
+								<input type="text" placeholder="" class="form-control" name="top-search" id="top-search">
+							</div>
+						</form>
+					</div>
+					<ul class="nav navbar-top-links navbar-right">
+						<li>
+							<span class="m-r-sm text-muted welcome-message">应用信息管理平台</span>
+						</li>
+
+						<li class="dropdown">
+							<a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+								<i class="fa fa-envelope"></i>  <span class="label label-warning"></span>
+							</a>
+							<ul class="dropdown-menu dropdown-messages">
+								<li>
+									<div class="dropdown-messages-box">
+										<a href="profile.html" class="pull-left">
+											<!-- <img alt="image" class="img-circle" src="img/a7.jpg"> -->
+										</a>
+										<div class="media-body">
+											<small class="pull-right">46h ago</small>
+											<strong>Mike Loreipsum</strong> started following <strong>Monica Smith</strong>. <br>
+											<small class="text-muted">3 days ago at 7:58 pm - 10.06.2014</small>
+										</div>
+									</div>
+								</li>
+								<li class="divider"></li>
+								<li>
+									<div class="dropdown-messages-box">
+										<a href="profile.html" class="pull-left">
+											<!-- <img alt="image" class="img-circle" src="img/a4.jpg"> -->
+										</a>
+										<div class="media-body ">
+											<small class="pull-right text-navy">5h ago</small>
+											<strong>Chris Johnatan Overtunk</strong> started following <strong>Monica Smith</strong>. <br>
+											<small class="text-muted">Yesterday 1:21 pm - 11.06.2014</small>
+										</div>
+									</div>
+								</li>
+								<li class="divider"></li>
+								<li>
+									<div class="dropdown-messages-box">
+										<a href="profile.html" class="pull-left">
+											<!-- <img alt="image" class="img-circle" src="img/profile.jpg"> -->
+										</a>
+										<div class="media-body ">
+											<small class="pull-right">23h ago</small>
+											<strong>Monica Smith</strong> love <strong>Kim Smith</strong>. <br>
+											<small class="text-muted">2 days ago at 2:30 am - 11.06.2014</small>
+										</div>
+									</div>
+								</li>
+								<li class="divider"></li>
+								<li>
+									<div class="text-center link-block">
+										<a href="mailbox.html">
+											<i class="fa fa-envelope"></i> <strong>Read All Messages</strong>
+										</a>
+									</div>
+								</li>
+							</ul>
+						</li>
+
+						<li class="dropdown">
+							<a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+								<i class="fa fa-bell"></i>  <span class="label label-primary"></span>
+							</a>
+							<ul class="dropdown-menu dropdown-alerts">
+								<li>
+									<a href="mailbox.html">
+										<div>
+											<i class="fa fa-envelope fa-fw"></i> You have 16 messages
+											<span class="pull-right text-muted small">4 minutes ago</span>
+										</div>
+									</a>
+								</li>
+								<li class="divider"></li>
+								<li>
+									<a href="profile.html">
+										<div>
+											<i class="fa fa-twitter fa-fw"></i> 3 New Followers
+											<span class="pull-right text-muted small">12 minutes ago</span>
+										</div>
+									</a>
+								</li>
+								<li class="divider"></li>
+								<li>
+									<a href="grid_options.html">
+										<div>
+											<i class="fa fa-upload fa-fw"></i> Server Rebooted
+											<span class="pull-right text-muted small">4 minutes ago</span>
+										</div>
+									</a>
+								</li>
+								<li class="divider"></li>
+								<li>
+									<div class="text-center link-block">
+										<a href="notifications.html">
+											<strong>See All Alerts</strong>
+											<i class="fa fa-angle-right"></i>
+										</a>
+									</div>
+								</li>
+							</ul>
+						</li>
+
+						<li>
+							<a href="{{ url_for('auth.logout') }}">
+								<i class="fa fa-sign-out"></i> 登出
+							</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+
+			{% block content %}{% endblock %}
+            {% block feature %}{% endblock %}
+
+			<div class="footer">
+				<div class="pull-right">
+				</div>
+				<div>
+					<strong>Copyright</strong> Gyf &copy; 2016-11
+				</div>
+			</div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/jquery-2.1.1.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/jquery-ui-1.12.1/jquery-ui.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/metisMenu/jquery.metisMenu.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/slimscroll/jquery.slimscroll.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/plugins/iCheck/icheck.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/inspinia.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins/pace/pace.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/plugins/jeditable/jquery.jeditable.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='bootstrapvalidator/dist/js/bootstrapValidator.min.js') }}"></script>
+	<script>
+		var str = document.location.pathname.split("/")[1];
+		var two = document.location.pathname.split("/")[2];
+		var three = document.location.pathname.split("/")[3];
+        try {
+             $("." + str).addClass('active');
+             $("." + two).addClass('active');
+			 $("." + three).addClass('active');
+        }
+        catch(err) {
+		}
+	</script>
+	
+	{% block script %}{% endblock %}
+	
+	{% block js %}{% endblock %}
+
+</body>
+</html>

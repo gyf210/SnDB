@@ -1,0 +1,463 @@
+{% extends "layout.html" %}
+
+{% block link %}
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.bootstrap.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.responsive.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.tableTools.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='multiselect2side/css/jquery.multiselect2side.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+.modal
+{
+	overflow: hidden;
+}
+.modal-dialog{
+    margin-right: auto;
+    margin-left: auto;
+}
+{% endblock %}
+
+{% block content %}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>应用校验</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a>资产管理</a>
+            </li>
+            <li>
+                <a>应用管理</a>
+            </li>
+            <li class="active">
+                <strong>应用校验</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+         
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">					
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover table-check" >
+                            <thead>
+                                <tr>
+									<th>进度状态</th>
+                                    <th>应用名</th>
+									<th>应用说明</th>
+									<th><span class="label label-success">原有端口</span><br /><span class="label label-success">现有端口</span></th>
+                                    <th>公网IP</th>
+									<th>内网IP</th>
+									<th><span class="label label-success">原有依赖</span><br /><span class="label label-success">现有依赖</span></th>
+                                    <th>所属产品</th>
+									<th>应用负责人</th>
+									<th>运行账户</th>
+									<th>创建时间</th>
+									<th>更新时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block feature %}
+{% include "asset/app_check_update.html" %}
+{% endblock %}
+
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/plugins/dataTables/jquery.dataTables.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.bootstrap.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.responsive.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.tableTools.min.js') }}"></script>
+<script src="{{ url_for('static', filename='multiselect2side/jquery.multiselect2side.js') }}"></script>
+{% endblock %}
+
+
+{% block js %}
+<script>
+$(document).ready(function() {
+    var table = $('.table-check').dataTable({
+			"ordering": false,
+			"ajax": "/asset/app_check_data/",
+			"columns": [
+			{"data": function(row) {
+				if (row['state_id'] == 1) {
+					return '<span class="label label-primary">' + row['state_name'] + '</span>';
+				} else {
+					return '<span class="label label-danger">' + row['state_name'] + '</span>';
+				}},
+			},
+			{"data": "name"},
+			{"data": "name_alias"},
+			{"data": function(row) {
+					return '<nobr>' + row['old_port'] + '</nobr><br /><nobr>' + row['port'] + '</nobr>';
+				}
+			},
+			{"data": function(row) {
+				return row['publish_ip'].join('<br />');}
+			},
+			{"data": function(row) {
+				return row['private_ip'].join('<br />');}
+			},
+			{"data": function(row) {
+				return '<nobr>' + row['old_depend'].join(', ') + '</nobr><br /><nobr>' + row['depend'].join(', ') + '</nobr>';}
+			},
+			{"data": "business"},
+			{"data": "contact"},
+			{"data": "user"},
+			{"data": "create_time"},
+			{"data": "change_time"},
+			{"data": function(row) {
+				var elements = [];
+				elements.push('<div class="btn-group"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button><ul class="dropdown-menu" style="min-width: 70px;">');
+				if (row['state_id'] != 1) {
+					elements.push('<li><a href="#modify-check" class="btn btn-info btn-check-modify" role="button" aria-pressed="true" data-toggle="modal" data-id="' + row['id'] + '" data-service="' + row['service_id'] + '">更新</a></li>');
+					// elements.push('<button type="button" data-target="#modify-check" class="btn btn-info btn-check-modify" data-toggle="modal" data-id="' + row['id'] + '" data-service="' + row['service_id'] + '">更新</a></li>');
+				}
+				elements.push('<li><a class="btn btn-danger btn-check-delete" role="button" aria-pressed="true" data-id="'+ row['id'] + '">删除</a></li>');
+				//elements.push('<button type="button" class="btn btn-danger btn-check-delete" data-backdrop="false" data-id="' + row['id'] + '">删除</a></li>');
+				elements.push('</ul></div>');
+				return elements.join(' ');}
+			}
+		]
+	});
+	
+	$('#app-modify').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		submitButtons: 'button[type="button"]',
+		fields: {
+			name: {
+				validators: {
+					notEmpty: {
+						message: '应用名称为空'
+					}
+				}
+			},
+			port: {
+				validators: {
+					regexp: {
+						regexp: /^[0-9]+$/,
+						message: '只能包含[0-9]'
+                    }
+				}
+			},
+			contact_email: {
+				validators: {
+					emailAddress: {
+						message: '请输入正确的邮件地址如: xxx@xxx.xx'
+					}
+				}
+			},
+			db_instance: {
+				validators: {
+					regexp: {
+						regexp: /^[A-Za-z0-9\s]+$/,
+						message: '只能包含数字或字母'
+                    }
+				}
+			}
+		}   
+	});
+	
+	$("#modify-app").draggable({
+		handle: ".modal-header"
+	});	
+	
+	$('.table-check').on('click', '.btn-check-modify', function() {
+		$('#app-modify').bootstrapValidator('resetForm', true);
+		var service = $(this).data('service');
+		var id = $(this).data('id');
+		$.post('/asset/check_modify_list/', {'service': service, 'id': id}, function(data) {
+			if (data == '') {
+				$('.modify-form').html('<h1><center><font color="red">数据异常无法更新</font></center></h1>');
+			} else {
+				for (var key in data) {
+					if(key=='business_id') {
+						$('#business_id-modify .selectpicker').selectpicker('val', data['business_id']);
+						$('#business_id-modify .selectpicker').selectpicker('refresh');
+					};
+					if(key=='user_id') {
+						$('#user_id-modify .selectpicker').selectpicker('val', data['user_id']);
+						$('#user_id-modify .selectpicker').selectpicker('refresh');
+					};
+					if(key=='priority_id') {
+						$('#priority_id-modify .selectpicker').selectpicker('val', data['priority_id']);
+						$('#priority_id-modify .selectpicker').selectpicker('refresh');
+					};
+					if(key=='status') {
+						$('#status-modify .selectpicker').selectpicker('val', data['status']);
+						$('#status-modify .selectpicker').selectpicker('refresh');
+					};
+					if(key=='contact') {
+						$('#contact-modify').val(data[key].join("\n"));
+					};
+					if(key=='contact_email') {
+						$('#contact_email-modify').val(data[key].join("\n"));
+					};
+					if(key=='db_instance') {
+						$('#db_instance-modify').val(data[key].join("\n"));
+					};
+					if(key=='comment') {
+						$('#comment-modify').val(data[key]);
+					};
+					if(key=='private_ip') {
+						$("#private_ip_modify").empty().multiselect2side('destroy');
+						$("#private_ip_modify").multiselect2side({
+							selectedPosition: 'left',
+							moveOptions: false,
+							labelsx: '已选区',
+							labeldx: '',
+							autoSort: true,
+							autoSortAvailable: true,
+							search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
+						});
+						var list=[], sxlist=[], dxlist=[];
+						for (var i in data[key]) {
+							sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
+							list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
+						};
+						$("#private_ip_modifyms2side__sx").html(sxlist.join("<br />"));
+						$("#private_ip_modify").html(list.join("<br />"));
+						for (var i in data['private_ip_excluded']) {
+							dxlist.push('<option value="'+data['private_ip_excluded'][i][0]+'">'+data['private_ip_excluded'][i][1]+'</option>');
+						};
+						$("#private_ip_modifyms2side__dx").html(dxlist.join("<br />"));
+					};
+					if(key=='publish_ip') {
+						$("#publish_ip_modify").empty().multiselect2side('destroy');
+						$("#publish_ip_modify").multiselect2side({
+							selectedPosition: 'left',
+							moveOptions: false,
+							labelsx: '已选区',
+							labeldx: '',
+							autoSort: true,
+							autoSortAvailable: true,
+							search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
+						});
+						var list=[], sxlist=[], dxlist=[];
+						for (var i in data[key]) {
+							sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
+							list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
+						};
+						$("#publish_ip_modifyms2side__sx").html(sxlist.join("<br />"));
+						$("#publish_ip_modify").html(list.join("<br />"));
+						for (var i in data['publish_ip_excluded']) {
+							dxlist.push('<option value="'+data['publish_ip_excluded'][i][0]+'">'+data['publish_ip_excluded'][i][1]+'</option>');
+						};
+						$("#publish_ip_modifyms2side__dx").html(dxlist.join("<br />"));
+					};
+					if(key=='depend') {
+						$("#depend_modify").empty().multiselect2side('destroy');
+						$("#depend_modify").multiselect2side({
+							selectedPosition: 'left',
+							moveOptions: false,
+							labelsx: '已选区',
+							labeldx: '',
+							autoSort: true,
+							autoSortAvailable: true,
+							search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
+						});
+						var list=[], sxlist=[], dxlist=[];
+						for (var i in data[key]) {
+							sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
+							list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
+						};
+						$("#depend_modifyms2side__sx").html(sxlist.join("<br />"));
+						$("#depend_modify").html(list.join("<br />"));
+						for (var i in data['depend_excluded']) {
+							dxlist.push('<option value="'+data['depend_excluded'][i][0]+'">'+data['depend_excluded'][i][1]+'</option>');
+						};
+						$("#depend_modifyms2side__dx").html(dxlist.join("<br />"));
+					};
+					if(key=='domain') {
+						$("#domain_modify").empty().multiselect2side('destroy');
+						$("#domain_modify").multiselect2side({
+							selectedPosition: 'left',
+							moveOptions: false,
+							labelsx: '已选区',
+							labeldx: '',
+							autoSort: true,
+							autoSortAvailable: true,
+							search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
+						});
+						var list=[], sxlist=[], dxlist=[];
+						for (var i in data[key]) {
+							sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
+							list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
+						};
+						$("#domain_modifyms2side__sx").html(sxlist.join("<br />"));
+						$("#domain_modify").html(list.join("<br />"));
+						for (var i in data['domain_excluded']) {
+							dxlist.push('<option value="'+data['domain_excluded'][i][0]+'">'+data['domain_excluded'][i][1]+'</option>');
+						};
+						$("#domain_modifyms2side__dx").html(dxlist.join("<br />"));
+					};
+					$('input[name=' + key + ']').val(data[key]);
+				}
+				$('#modify-app').modal('show');}
+			}, 'json');
+		});			
+	
+	$('.btn-modify-submit').on('click', function() {
+		var params = $('.modify-form').serializeArray();
+
+		var privateiplist = [];
+		$("#private_ip_modifyms2side__sx option").each(function()
+			{
+			privateiplist.push($(this).val())
+		});
+
+		var publishiplist = [];
+		$("#publish_ip_modifyms2side__sx option").each(function()
+			{
+			publishiplist.push($(this).val())
+		});
+
+		var dependlist = [];
+		$("#depend_modifyms2side__sx option").each(function()
+			{
+			dependlist.push($(this).val())
+		});
+
+		var domainlist = [];
+		$("#domain_modifyms2side__sx option").each(function()
+			{
+			domainlist.push($(this).val())
+		});
+
+		var datas = {
+      		data: JSON.stringify({
+                "params": params,
+                "publish_ip": publishiplist,
+                "private_ip": privateiplist,
+                "depend": dependlist,
+                "domain": domainlist
+            })
+		};
+
+		$.post('/asset/check_update_data/', datas, function(data) {
+			if(data['error'] == '') {
+				swal({
+						title: '修改成功',
+						text: '',
+						type: "success",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+						window.location.href = '/asset/app_check/';
+					}
+				);
+			}
+			else {
+				swal({
+						title: "错误信息",
+						text: data['error'],
+						type: "error",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+					}
+				);
+			}
+		}, 'json');
+	});
+		
+	$('.table-check').on('click', '.btn-check-delete', function() {
+		var id = $(this).data('id');
+		swal({
+				title: "确定删除?",
+				text: '',
+				type: "warning",
+				showCancelButton: true,
+				confirmButtonColor: "#DD6B55",
+				confirmButtonText: "确定",
+				cancelButtonText: "关闭",
+				closeOnConfirm: false,
+				closeOnCancel: true
+			},
+			function(isConfirm){
+				if(isConfirm) {
+					$.post('/asset/check_delete_data/', {'id': id}, function(data) {
+						if(data['error'] == '') {
+							swal({
+									title: '删除成功',
+									text: '',
+									type: "success",
+									showCancelButton: false,
+									confirmButtonColor: "#DD6B55",
+									confirmButtonText: "确定",
+									cancelButtonText: "关闭",
+									closeOnConfirm: true,
+									closeOnCancel: false
+								},
+								function(isConfirm){
+									window.location.href = '/asset/app_check/';
+								}
+							);
+						}
+						else {
+							swal({
+									title: "错误信息",
+									text: data['error'],
+									type: "error",
+									showCancelButton: false,
+									confirmButtonColor: "#DD6B55",
+									confirmButtonText: "确定",
+									cancelButtonText: "关闭",
+									closeOnConfirm: true,
+									closeOnCancel: false
+								},
+								function(isConfirm){
+								}
+							);
+						}
+					}, 'json');
+				}
+			}
+		);
+    });
+
+});
+</script>
+{% endblock %}

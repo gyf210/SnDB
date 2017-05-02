@@ -1,0 +1,137 @@
+{% extends "layout.html" %}
+
+{% block link %}
+<link href="{{ url_for('static', filename='bootstrapvalidator-0.4.5/dist/css/bootstrapValidator.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>个人设置</h2>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+         
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+				<div class="panel-options">
+						<ul class="nav nav-tabs">
+							<li class="change_password"><a href="/auth/change_password/" class="text-center"><i class="fa fa-laptop"></i> 密码修改</a></li>
+							<li class="change_image"><a href="/auth/change_image/" class="text-center"><i class="fa fa-laptop"></i> 更换头像</a></li>
+	
+						</ul>
+				</div>
+				{% if error %}
+				<div class="alert alert-danger" role="alert">{{ error }}</div>
+				{% endif %}
+                <div class="ibox-title">
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <form id="update-passwd" method="post" class="form-horizontal">
+                        <div class="form-group"><label class="col-sm-2 control-label">老密码</label>
+                            <div class="col-sm-10"><input type="password" class="form-control" name="password_old" value="{{ password_old }}"></div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group"><label class="col-sm-2 control-label">新密码</label>
+                            <div class="col-sm-10"><input type="password" class="form-control" name="password_new" value="{{ password_new }}"></div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group"><label class="col-sm-2 control-label">确认密码</label>
+                            <div class="col-sm-10"><input type="password" class="form-control" name="password_repeat_new" value="{{ password_repeat_new }}"></div>
+                        </div>                      
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <div class="col-sm-2 col-sm-offset-2">
+                                <button class="btn btn-primary" type="submit">提交</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block script %}
+<script src="{{ url_for('static', filename='bootstrapvalidator-0.4.5/dist/js/bootstrapValidator.min.js') }}"></script>
+{% endblock %}
+
+{% block js %}
+<script>
+	var two = document.location.pathname.split("/")[2];
+    $("." + two).addClass('active');
+</script>
+
+<script>
+$(document).ready(function() {	
+	$('#update-passwd').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		fields: {
+			password_old: {
+				message:'密码无效',
+				validators: {
+					notEmpty: {
+						message: '密码不能为空'
+					},
+					stringLength: {
+						min: 6,
+						message: '密码长度至少大于6位'
+					}
+				}
+			},
+			password_new: {
+				message:'密码无效',
+				validators: {
+					notEmpty: {
+						message: '密码不能为空'
+					},
+					stringLength: {
+						min: 6,
+						message: '密码长度至少大于6位'
+					},
+					different: {
+						field: 'password_old',
+						message: '不能和原密码相同'
+					}
+				}               
+			},
+			password_repeat_new: {
+				message:'密码无效',
+				validators: {
+					notEmpty: {
+						message: '密码不能为空'
+					},
+					stringLength: {
+						min: 6,
+						message: '密码长度至少大于6位'
+					},
+					identical: {
+						 field: 'password_new', 
+						 message: '两次密码不一致'
+					}
+				}               
+			}
+		}   
+	});
+});
+</script>
+{% endblock %}
+

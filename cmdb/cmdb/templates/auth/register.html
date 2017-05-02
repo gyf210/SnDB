@@ -1,0 +1,147 @@
+{% extends "auth/base.html" %}
+
+{% block link %}
+<link href="{{ url_for('static', filename='bootstrapvalidator-0.4.5/dist/css/bootstrapValidator.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="middle-box text-center loginscreen animated fadeInDown">
+	<div>
+		<div>
+			<h1 class="logo-name">AppDB</h1>
+		</div>
+		<h3>注册用户</h3>
+		<form class="m-t" role="form" method="post" id="register-user">
+			<div class="form-group">
+				{% if error %}
+					<div class="alert alert-danger" role="alert">
+						<strong>{{ error }}</strong>
+					</div>
+				{% endif %}
+			</div>
+			
+			<div class="form-group">
+				<input type="text" class="form-control" placeholder="Name" required="" name="name" value="{{ form['name'] }}">
+			</div>
+			
+			<div class="form-group">
+				<input type="email" class="form-control" placeholder="Email" required="" name="email" value="{{ form['email'] }}">
+			</div>
+			
+			<div class="form-group">
+				<input type="password" class="form-control" placeholder="Password" required="" name="password" value="{{ form['password'] }}">
+			</div>
+			
+			<div class="form-group">
+				<input type="password" class="form-control" placeholder="Confirm Password" required="" name="password2" value="{{ form['password2'] }}">
+			</div>
+			
+			<div class="form-group">
+				<input type="text" class="form-control" placeholder="Telephone" required="" name="phone" value="{{ form['phone'] }}">
+			</div>
+
+			<button type="submit" class="btn btn-primary block full-width m-b">注册</button>
+		</form>
+		<a href="{{ url_for('auth.login') }}">已有账户?去登录..</a>
+		<p class="m-t"> <small>AppDB by LeCloud &copy; 2017</small> </p>
+	</div>
+</div>
+{% endblock %}
+		
+{% block script %}
+<script src="{{ url_for('static', filename='bootstrapvalidator-0.4.5/dist/js/bootstrapValidator.min.js') }}"></script>
+{% endblock %}
+
+{% block js %}
+<script>
+$(document).ready(function() {
+	$('#register-user').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		fields: {
+			name: {
+				message: '用户名无效',
+				validators: {
+					notEmpty: {
+						message: '用户名不能为空'
+					},
+					regexp: {
+						regexp: /^[a-zA-Z0-9]+$/,
+						message: '只能是数字和字母'
+					},
+					stringLength: {
+						min: 3,
+						max: 30,
+						message: '用户名长度必须在3到30之间'
+					}
+				}
+			},
+			email: {
+				message: '邮箱无效',
+				validators: {
+					notEmpty: {
+						message: '邮箱不能为空'
+					},
+					emailAddress: {
+						message: '邮箱输入无效'
+					}
+				}
+			},
+			password: {
+				message:'密码无效',
+				validators: {
+					notEmpty: {
+						message: '密码不能为空'
+					},
+					stringLength: {
+						min: 6,
+						message: '密码长度至少6位'
+					},
+					different: {
+						field: 'name',
+						message: '不能和用户名相同'
+					}
+				}
+			},
+			password2: {
+				message: '密码无效',
+				validators: {
+					notEmpty: {
+						message: '密码不能为空'
+					},
+					stringLength: {
+						min: 6,
+						message: '密码长度至少6位'
+					},
+					identical: {
+						field: 'password',
+						message: '两次密码不一致'
+					},
+					different: {
+						field: 'name',
+						message: '不能和用户名相同'
+					}
+				}
+			},
+			phone: {
+				message: 'The phone is not valid',
+				validators: {
+					notEmpty: {
+						message: '手机号码不能为空'
+					},
+					stringLength: {
+						min: 11,
+						max: 11,
+						message: '请输入11位手机号码'
+					}
+				}
+			}
+		}
+	});
+});
+</script>
+{% endblock %}

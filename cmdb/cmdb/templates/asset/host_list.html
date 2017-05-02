@@ -1,0 +1,702 @@
+{% extends "layout.html" %}
+
+{% block link %}
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.bootstrap.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.responsive.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.tableTools.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+.modal
+{
+    overflow: hidden;
+}
+.modal-dialog{
+    margin-right: auto;
+    margin-left: auto;
+}
+{% endblock %}
+
+{% block content %}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>主机操作</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a>资产管理</a>
+            </li>
+            <li>
+                <a>主机管理</a>
+            </li>
+            <li class="active">
+                <strong>主机操作</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+         
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+					<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#create-host">添加</button>
+					<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#create-auto-host">批量添加</button>
+					<button type="button" class="btn btn-primary btn-danger btn-host-batch-delete" data-backdrop="false" data-toggle="modal">批量删除</button>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="ibox-content">
+                    <div class="table-responsive">
+						<div class="row">
+							<div class="col-sm-12" align="right">
+								<form class="form-inline search-form" action="post">
+									<select class="form-control show-tick" name="field_id" data-style="btn-primary">
+										{% for field in fields %}
+										<option value="{{ field.id }}">{{ field.name }}</option>
+										{% endfor %}
+									</select>
+								  	<input name="search_data" type="text" class="form-control" value="">
+									<button type="button" class="btn btn-primary search-field" >搜索</button>
+								</form>
+								<br />
+							</div>
+						</div>
+                        <table class="table table-striped table-bordered table-hover table-host" >
+                            <thead>
+                                <tr>
+									<th class="center">
+										<label class="position-relative">
+                              				<input type="checkbox" class="ace"/>
+											<span class="lbl"></span>
+										</label>
+									</th>
+									<th>所属机房</th>
+									<th>主机类型</th>
+									<th>操作系统</th>
+                                    <th>CPU(核)</th>
+									<th>MEM(G)</th>
+									<th>DISK(G)</th>
+									<th>公网IP</th>
+									<th>内网IP</th>
+									<th>虚拟IP</th>
+									<th>宿主IP</th>
+									<th>所属产品</th>
+									<th>所属环境</th>
+									<th>负责人</th>
+									<th>状态</th>
+									<th>备注</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data-body">
+								{% for host in hosts.items %}
+								<tr>
+									<td>
+										<label class="position-relative">
+											<input type="checkbox" class="ace" value="{{ host.id }}" />
+											<span class="lbl"></span>
+										</label>
+									</td>
+									<td>{{ host.to_json().idc }}</td>
+									<td>{{ host.to_json().host_type }}</td>
+									<td>{{ host.to_json().system }}</td>
+									<td>{{ host.cpu }}</td>
+									<td>{{ host.memory }}</td>
+									<td>{{ host.disk }}</td>
+									<td>{{ host.to_json().publish_ip | join('<br />') | safe }}</td>
+									<td>{{ host.to_json().private_ip | join('<br />') | safe }}</td>
+									<td>{{ host.to_json().vip_ip | join('<br />') | safe }}</td>
+									<td>{{ host.host_ip }}</td>
+									<td>{{ host.to_json().business }}</td>
+									<td>{{ host.to_json().env }}</td>
+									<td>{{ host.owner }}</td>
+									<td>{% if host.status == 0 %}使用{% elif host.status == 1 %}维护{% else %}空闲{% endif %}</td>
+									<td>{{ host.comment }}</td>
+									<td>
+										<button type="button" class="btn btn-primary btn-host-modify" data-target="#modify-host" data-id="{{ host.id }}" >修改</button>
+										<button type="button" class="btn btn-danger btn-host-delete" data-backdrop="false" data-id="{{ host.id }}" >删除</button>
+									</td>
+								</tr>
+								{% endfor %}
+                            </tbody>
+                        </table>
+						<div class="panel-default row" id="data-page">
+							<div class="col-md-4" >
+								<p>Showing {{ start }} to {{ end }} of {{ hosts.total }} entries</p>
+							</div>
+							<div class="col-md-8" align="right">
+								<ul class="pagination">
+									<li><a href="/asset/host_list/?id=1">首页</a></li>
+									{% if hosts.has_prev %}
+										<li><a href="/asset/host_list/?id={{ hosts.prev_num }}">上一页</a></li>
+									{% else %}
+										<li class="disabled"><a href="#">上一页</a></li>
+									{% endif %}
+									{% for p in page_range_list %}
+										<li {% if hosts.page == p %} class="active" {% endif %}><a href="/asset/host_list/?id={{ p }}">{{ p }}</a></li>
+									{% endfor %}
+									{% if hosts.has_next %}
+										<li><a href="/asset/host_list/?id={{ hosts.next_num }}">下一页</a></li>
+									{% else %}
+										<li class="disabled"><a href="#">下一页</a></li>
+									{% endif %}
+									<li><a href="/asset/host_list/?id={{ hosts.pages }}">末页</a></li>
+								</ul>
+							</div>
+						</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block feature %}
+{% include "asset/host_add.html" %}
+{% include "asset/host_auto_add.html" %}
+{% include "asset/host_modify.html" %}
+{% endblock %}
+
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/plugins/dataTables/jquery.dataTables.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.bootstrap.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.responsive.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.tableTools.min.js') }}"></script>
+{% endblock %}
+
+
+{% block js %}
+<script>
+$(document).ready(function() {
+	$('.search-field').on('click', function() {
+		var params = $('.search-form').serializeArray();
+		$.post('/asset/host_list/', params, function(data) {
+			if(data['hosts'] == '') {
+				$('#data-body').html('<td colSpan="16">No data available in table</td>');
+				$('#data-page').html('<div class="col-md-4" ><p>Showing 0 to 0 of 0 entries</p></div>');
+			}
+			else {
+				var host_list = [];
+				for (var i in data['hosts']){
+				var message = [];
+				message.push('<tr><td><label class="position-relative"><input type="checkbox" class="ace" value="' + data['hosts'][i]['id'] + '" /><span class="lbl"></span></label></td>');
+				message.push('<td>' + data['hosts'][i]['idc'] + '</td>');
+				message.push('<td>' + data['hosts'][i]['host_type'] + '</td>');
+				message.push('<td>' + data['hosts'][i]['system'] + '</td>');
+				message.push('<td>' + data['hosts'][i]['cpu'] + '</td>');
+				message.push('<td>' + data['hosts'][i]['memory'] + '</td>');
+				message.push('<td>' + data['hosts'][i]['disk'] + '</td>');
+				message.push('<td>' + data['hosts'][i]['publish_ip'].join("<br />") + '</td>');
+				message.push('<td>' + data['hosts'][i]['private_ip'].join("<br />") + '</td>');
+				message.push('<td>' + data['hosts'][i]['vip_ip'].join("<br />") + '</td>');
+				message.push('<td>' + data['hosts'][i]['host_ip'] + '</td>');
+				message.push('<td>' + data['hosts'][i]['business'] + '</td>');
+				message.push('<td>' + data['hosts'][i]['env'] + '</td>');
+				message.push('<td>' + data['hosts'][i]['owner'] + '</td>');
+				if (data['hosts'][i]['status'] == 0) {
+					message.push('<td>使用</td>');
+				} else if (data['hosts'][i]['status'] == 1) {
+					message.push('<td>维护</td>');
+				} else {
+					message.push('<td>空闲</td>');
+				}
+				message.push('<td>' + data['hosts'][i]['comment'] + '</td>');
+				message.push('<td><button type="button" class="btn btn-primary btn-host-modify" data-target="#modify-host" data-id="' + data['hosts'][i]['id'] + '" >修改</button><button type="button" class="btn btn-danger btn-host-delete" data-id="' + data['hosts'][i]['id'] + '" >删除</button></td></tr>');
+				host_list.push(message.join(' '));
+				}
+				$('#data-body').html(host_list.join(' '));
+				$('#data-page').html('');
+			}
+		}, 'json');
+	});
+
+
+	$(document).on('click', 'th input:checkbox', function() {
+		var that = this;
+		$(this).closest('table').find('tr > td:first-child input:checkbox')
+				.each(function() {
+					this.checked = that.checked;
+					$(this).closest('tr').toggleClass('selected');
+				});
+	});
+	
+	
+	$('#host-create').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		submitButtons: 'button[type="button"]',
+		fields: {
+			publish_ip: {
+				validators: {
+					regexp: {
+						regexp: /^[0-9\.\s]+$/,
+						message: '公网IP只能包含[0-9.]'
+                    }
+				}
+			},
+			private_ip: {
+				validators: {
+					notEmpty: {
+						message: '内网IP为空'
+					},
+					regexp: {
+						regexp: /^[0-9\.\s]+$/,
+						message: '内网IP只能包含[0-9.]'
+                    }
+				}
+			},
+			vip_ip: {
+				validators: {
+					regexp: {
+						regexp: /^[0-9\.\s]+$/,
+						message: '虚拟IP只能包含[0-9.]'
+                    }
+				}
+			},
+			host_ip: {
+				validators: {
+					regexp: {
+						regexp: /^[0-9\.]+$/,
+						message: '宿主IP只能包含[0-9.]'
+                    }
+				}
+			}
+		}   
+	});
+	
+	$('#host-auto-create').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		submitButtons: 'button[type="button"]',
+		fields: {
+			auto_ip: {
+				validators: {
+					regexp: {
+						regexp: /^[0-9\.\s]+$/,
+						message: '仅能包含[0-9.]'
+                    }
+				}
+			}
+		}
+	});
+		
+	$('#host-modify').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		submitButtons: 'button[type="button"]',	
+		fields: {
+			publish_ip: {
+				validators: {
+					regexp: {
+						regexp: /^[0-9\.\s]+$/,
+						message: '公网IP只能包含[0-9.]'
+                    }
+				}
+			},
+			private_ip: {
+				validators: {
+					notEmpty: {
+						message: '内网IP为空'
+					},
+					regexp: {
+						regexp: /^[0-9\.\s]+$/,
+						message: '内网IP只能包含[0-9.]'
+                    }
+				}
+			},
+			vip_ip: {
+				validators: {
+					regexp: {
+						regexp: /^[0-9\.\s]+$/,
+						message: '虚拟IP只能包含[0-9.]'
+                    }
+				}
+			},
+			host_ip: {
+				validators: {
+					regexp: {
+						regexp: /^[0-9\.]+$/,
+						message: '宿主IP只能包含[0-9.]'
+                    }
+				}
+			}
+		}   
+	});	
+	
+	$("#create-auto-host").draggable({
+		handle: ".modal-header"
+	});	
+	
+	$('#create-auto-host').on('show.bs.modal', function (event) {
+		if(!event.relatedTarget){return;}
+		$("#auto_ip").val('');
+		$('#create-auto-host').bootstrapValidator('resetForm', true);
+		$('#business_id-auto-create .selectpicker').selectpicker('val', 0);
+		$('#business_id-auto-create .selectpicker').selectpicker('refresh');
+		$('#status-auto-create .selectpicker').selectpicker('val', -1);
+		$('#status-auto-create .selectpicker').selectpicker('refresh');
+	});
+	
+	$('.btn-create-auto-submit').on('click', function() {
+		var params = $('.create-auto-form').serializeArray();
+		$.post('/asset/host_auto_create/', params, function(data) {
+			if(data['error'] == '') {
+				swal({
+						title: '添加成功',
+						text: data['message'],
+						type: "success",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+						$('#create-auto-host').modal('hide');
+						window.location.href = '/asset/host_list/';
+					}
+				);
+			}
+			else {
+				swal({
+						title: "错误信息",
+						text: data['error'],
+						type: "error",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+						if(data['ret'] == 1) {
+							$('#create-auto-host').modal('hide');
+							window.location.href = '/asset/host_list/';
+						}
+					}
+				);
+			}
+		}, 'json');
+	});
+	
+	$("#create-host").draggable({
+		handle: ".modal-header"
+	});
+	
+	$('#create-host').on('show.bs.modal', function (event) {
+		if(!event.relatedTarget){return;}
+		$('input').val('');
+		$('textarea').val('');
+		// $('#host-create').bootstrapValidator('resetForm', true);
+		$('#idc_id-create .selectpicker').selectpicker('val', 0);
+		$('#idc_id-create .selectpicker').selectpicker('refresh');
+		$('#host_type_id-create .selectpicker').selectpicker('val', 0);
+		$('#host_type_id-create .selectpicker').selectpicker('refresh');
+		$('#system_id-create .selectpicker').selectpicker('val', 0);
+		$('#system_id-create .selectpicker').selectpicker('refresh');
+		$('#business_id-create .selectpicker').selectpicker('val', 0);
+		$('#business_id-create .selectpicker').selectpicker('refresh');
+		$('#env_id-create .selectpicker').selectpicker('val', 0);
+		$('#env_id-create .selectpicker').selectpicker('refresh');
+		$('#status-create .selectpicker').selectpicker('val', -1);
+		$('#status-create .selectpicker').selectpicker('refresh');
+	});
+	
+	$('.btn-create-submit').on('click', function() {
+		var params = $('.create-form').serializeArray();
+		$.post('/asset/host_create/', params, function(data) {
+			if(data['error'] == '') {
+				swal({
+						title: '添加成功',
+						text: '',
+						type: "success",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+						$('#create-host').modal('hide');
+						window.location.href = '/asset/host_list/';
+					}
+				);
+			}
+			else {
+				swal({
+						title: "错误信息",
+						text: data['error'],
+						type: "error",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+					}
+				);
+			}
+		}, 'json');
+	});
+	
+	$("#modify-host").draggable({
+		handle: ".modal-header"
+	});	
+	
+	$('.table-host').on('click', '.btn-host-modify', function() {
+		// $('#host-modify').bootstrapValidator('resetForm', true);
+		var id = $(this).data('id');
+		$.post('/asset/host_modify_list/', {'id': id}, function(data) {
+			for (var key in data) {
+				if(key=='host_type_id') {
+					$('#host_type_id-modify .selectpicker').selectpicker('val', data['host_type_id']);
+					$('#host_type_id-modify .selectpicker').selectpicker('refresh');
+				};
+				if(key=='system_id') {
+					$('#system_id-modify .selectpicker').selectpicker('val', data['system_id']);
+					$('#system_id-modify .selectpicker').selectpicker('refresh');
+				};
+				if(key=='idc_id') {
+					$('#idc_id-modify .selectpicker').selectpicker('val', data['idc_id']);
+					$('#idc_id-modify .selectpicker').selectpicker('refresh');
+				};
+				if(key=='env_id') {
+					$('#env_id-modify .selectpicker').selectpicker('val', data['env_id']);
+					$('#env_id-modify .selectpicker').selectpicker('refresh');
+				};
+				if(key=='business_id') {
+					$('#business_id-modify .selectpicker').selectpicker('val', data['business_id']);
+					$('#business_id-modify .selectpicker').selectpicker('refresh');
+				};
+				if(key=='status') {
+					$('#status-modify .selectpicker').selectpicker('val', data['status']);
+					$('#status-modify .selectpicker').selectpicker('refresh');
+				};
+				if(key=='comment') {
+					$('#modify-comment').val(data[key]);
+				};
+				// if(key=='cpu'|key=='memory'|key=='disk') {
+				//	$('#'+key+'-modify').slider('setValue', data[key]);
+				//	$('#'+key+'-modify-value').text(data[key]);
+				// };
+				if(key=='private_ip'|key=='publish_ip'|key=='vip_ip') {
+					$('#modify-'+key).val(data[key].join('\n'));
+				};
+				$('input[name=' + key + ']').val(data[key]);
+			}
+			$('#modify-host').modal('show');
+			}, 'json');
+	});
+	
+	$('.btn-modify-submit').on('click', function() {
+		var params = $('.modify-form').serializeArray();
+		$.post('/asset/host_modify/', params, function(data) {
+			if(data['error'] == '') {
+				swal({
+						title: '修改成功',
+						text: '',
+						type: "success",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+						$('#modify-host').modal('hide');
+						// table.api().ajax.reload();
+						window.location.href = '/asset/host_list/';
+					}
+				);
+			}
+			else {
+				swal({
+						title: "错误信息",
+						text: data['error'],
+						type: "error",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+					}
+				);
+			}
+		}, 'json');
+	});
+	
+	$('.table-host').on('click','.btn-host-delete',function() {
+		var id = $(this).data('id');
+		swal({
+				title: "确定删除?",
+				text: '',
+				type: "warning",
+				showCancelButton: true,
+				confirmButtonColor: "#DD6B55",
+				confirmButtonText: "确定",
+				cancelButtonText: "关闭",
+				closeOnConfirm: false,
+				closeOnCancel: true
+			},
+			function(isConfirm){
+				if(isConfirm) {
+					$.post('/asset/host_delete_data/', {'id': id}, function(data) {
+						if(data['error'] == '') {
+							swal({
+									title: '删除成功',
+									text: '',
+									type: "success",
+									showCancelButton: false,
+									confirmButtonColor: "#DD6B55",
+									confirmButtonText: "确定",
+									cancelButtonText: "关闭",
+									closeOnConfirm: true,
+									closeOnCancel: false
+								},
+								function(isConfirm){
+									// table.api().ajax.reload();
+									window.location.href = '/asset/host_list/';
+								}
+							);
+						}
+						else {
+							swal({
+									title: "错误信息",
+									text: data['error'],
+									type: "error",
+									showCancelButton: false,
+									confirmButtonColor: "#DD6B55",
+									confirmButtonText: "确定",
+									cancelButtonText: "关闭",
+									closeOnConfirm: true,
+									closeOnCancel: false
+								},
+								function(isConfirm){
+								}
+							);
+						}
+					}, 'json');
+				}
+			}
+		);
+    });
+	
+	$('.btn-host-batch-delete').on('click', function(event) {
+		var ids="";
+		$('.table-host').find('tr > td:first-child input:checkbox')
+			.each(function () {
+				if (this.checked) {
+					ids+=$(this).val()+",";  
+					}
+             });
+		if (ids === "") {
+			swal({
+					title: "错误信息",
+					text: "请选择一行数据!",
+					type: "error",
+					showCancelButton: false,
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "确定",
+					cancelButtonText: "关闭",
+					closeOnConfirm: true,
+					closeOnCancel: false
+				},
+				function(isConfirm){
+				});
+		} else {
+			ids = ids.substr(0, ids.length - 1);
+			swal({
+					title: "确定删除?",
+					text: '',
+					type: "warning",
+					showCancelButton: true,
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "确定",
+					cancelButtonText: "关闭",
+					closeOnConfirm: false,
+					closeOnCancel: true
+				},
+				function(isConfirm){
+					if(isConfirm) {
+						$.post('/asset/host_batch_delete_data/', {'ids': ids}, function(data) {
+							if(data['error'] == '') {
+								swal({
+										title: '删除成功',
+										text: '',
+										type: "success",
+										showCancelButton: false,
+										confirmButtonColor: "#DD6B55",
+										confirmButtonText: "确定",
+										cancelButtonText: "关闭",
+										closeOnConfirm: true,
+										closeOnCancel: false
+									},
+									function(isConfirm){
+										// table.api().ajax.reload();
+										window.location.href = '/asset/host_list/';
+									}
+								);
+							}
+							else {
+								swal({
+										title: "错误信息",
+										text: data['error'],
+										type: "error",
+										showCancelButton: false,
+										confirmButtonColor: "#DD6B55",
+										confirmButtonText: "确定",
+										cancelButtonText: "关闭",
+										closeOnConfirm: true,
+										closeOnCancel: false
+									},
+									function(isConfirm){
+										// table.api().ajax.reload();
+										window.location.href = '/asset/host_list/';
+									}
+								);
+							}
+						}, 'json');
+					}
+				}
+			);
+		}
+	});
+
+
+});
+</script>
+{% endblock %}

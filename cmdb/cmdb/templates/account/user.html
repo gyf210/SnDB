@@ -1,0 +1,497 @@
+{% extends "layout.html" %}
+
+{% block link %}
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.bootstrap.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.responsive.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.tableTools.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/plugins/sweetalert/sweetalert.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='bootstrapvalidator-0.4.5/dist/css/bootstrapValidator.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>账户管理</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="/">首页</a>
+            </li>
+            <li>
+                <a>账户中心</a>
+            </li>
+            <li class="active">
+                <strong>账户管理</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+         
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+				<div class="panel-options">
+						<ul class="nav nav-tabs">
+							<li class="user_list"><a href="/account/user_list/" class="text-center"><i class="fa fa-laptop"></i> 使用账号</a></li>
+							<li class="user_disable"><a href="/account/user_disable/" class="text-center"><i class="fa fa-laptop"></i> 禁用帐号</a></li>
+							<li class="user_unactivate"><a href="/account/user_unactivate/" class="text-center"><i class="fa fa-laptop"></i> 待激活帐号</a></li>
+						</ul>
+				</div>
+                <div class="ibox-title">
+					<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#create-user">添加</button>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover table-user" >
+                            <thead>
+                                <tr>
+                                    <th>账户名</th>
+                                    <th>邮箱</th>
+                                    <th>电话</th>
+									<th>身份信息</th>
+									<th>注册时间</th>
+									<th>登录时间</th>
+									<th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block feature %}
+<div class="modal fade" id="create-user" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="exampleModalLabel">账户创建</h3>
+            </div>
+			<form class="create-form form-horizontal" id="user-create" method="post" >			
+				<div class="modal-body">
+                    <div class="form-group"><label class="col-sm-3 control-label">账户名:</label>
+                        <div class="col-sm-8">
+								<input type="text" class="form-control text-danger" name="name">
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group"><label class="col-sm-3 control-label">密码:</label>
+                        <div class="col-sm-8">
+							<input type="password" class="form-control" name="password">
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group"><label class="col-sm-3 control-label">邮箱:</label>
+                        <div class="col-sm-8">
+							<input type="text" class="form-control" name="email">
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">电话:</label>
+                        <div class="col-sm-8">
+							<input type="text" class="form-control" name="phone">
+						</div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">身份信息:</label>
+						<div class="col-sm-8">
+							<select class="form-control" name="role_id">
+							{% for role in roles %}
+								<option value="{{ role['id'] }}">{{ role['name'] }}</option>
+							{% endfor %}
+							</select>
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+					</div>
+                    <div class="hr-line-dashed"></div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary btn-create-submit">保存</button>
+				</div>
+			</form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modify-user" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="exampleModalLabel">账户修改</h3>
+            </div>
+			<form method="post" class="modify-form form-horizontal" id="user-modify">
+				<div class="modal-body">
+					<input type="hidden" class="form-control" name="id" value=""/>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">电话:</label>
+                        <div class="col-sm-8">
+							<input type="text" class="form-control" name="phone" value="">
+						</div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">身份信息:</label>
+						<div class="col-sm-8">
+							<select class="form-control" id="account-role-id" name="role_id">
+							</select>
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+					</div>
+                    <div class="hr-line-dashed"></div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary btn-modify-submit">保存</button>
+				</div>
+			</form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/plugins/dataTables/jquery.dataTables.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.bootstrap.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.responsive.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.tableTools.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+<script src="{{ url_for('static', filename='bootstrapvalidator-0.4.5/dist/js/bootstrapValidator.min.js') }}"></script>
+{% endblock %}
+
+
+{% block js %}
+<script>
+	var two = document.location.pathname.split("/")[2];
+    $("." + two).addClass('active');
+</script>
+
+<script>
+$(document).ready(function() {
+    var table = $('.table-user').dataTable({
+		"ajax": "/account/user_list_data/",
+		"columns": [
+			{"data": "name"},
+			{"data": "email"},
+			{"data": "phone"},
+			{"data": "role_name"},
+			{"data": "member_since"},
+			{"data": "last_seen"},
+			{"data": function(row) {
+				return row['status'] == 1 ? '使用':'禁用';}
+			},
+			{"data": function(row) {
+				var elements = [];
+				elements.push('<button type="button" class="btn btn-primary btn-user-modify" data-target="#modify-user" data-id="' + row['id'] + '" >修改</button>');
+				elements.push('<button type="button" class="btn btn-warning btn-user-disable" data-id="' + row['id'] + '" >禁用</button>');
+				elements.push('<button type="button" class="btn btn-danger btn-user-delete" data-id="' + row['id'] + '" >删除</button>');
+				return elements.join(' ');}
+			}
+		]
+	});
+	
+	$('#user-create').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		submitButtons:'[type="button"]',		
+		fields: {
+			name: {
+				validators: {
+					notEmpty: {
+						message: '账户名不能为空'
+					},
+					regexp: {
+							regexp: /^[a-zA-Z0-9_\.]+$/,
+							message: '只能是数字和字母_.'
+					},
+					stringLength: {
+						min: 4,
+						message: '用户名长度至少大于4位'
+					}
+				}
+			},
+			password: {
+				message:'密码无效',
+				validators: {
+					notEmpty: {
+						message: '密码不能为空'
+					},
+					stringLength: {
+						min: 6,
+						message: '密码长度至少大于6位'
+					}
+				}
+			},
+			email: {
+				validators: {
+					emailAddress: {
+						message: '请输入正确的邮件地址如: xxx@xxx.xx'
+					}
+				}
+			},
+			phone: {
+				validators: {
+					stringLength: {
+						min: 11,
+						max: 11,
+						message: '请输入11位手机号码'
+					},
+					regexp: {
+						regexp: /^[0-9]+$/,
+						message: '请输入正确的手机号码'
+					}
+				}
+			}   
+		}
+	});
+	
+	$('#create-user').on('show.bs.modal', function (event) {
+		if(!event.relatedTarget){return;}
+		$(':input').val('');
+		$('#user-create').bootstrapValidator('resetForm', true);
+	});
+	
+	$('.btn-create-submit').on('click', function() {
+		var params = $('.create-form').serializeArray();
+		$.post('/account/user_create/', params, function(data) {
+			if(data['error'] == '') {
+				swal({
+					title: '添加成功',
+					text: '',
+					type: "success",
+					showCancelButton: false,
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "确定",
+					cancelButtonText: "关闭",
+					closeOnConfirm: true,
+					closeOnCancel: false
+					},
+					function(isConfirm){
+						$('#create-user').modal('hide');
+						table.api().ajax.reload();
+					}
+				);
+			}
+			else {
+				swal({
+					title: "错误信息",
+					text: data['error'],
+					type: "error",
+					showCancelButton: false,
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "确定",
+					cancelButtonText: "关闭",
+					closeOnConfirm: true,
+					closeOnCancel: false
+					},
+					function(isConfirm){
+					}
+				);
+			}
+		}, 'json');
+	});
+	
+	$('#user-modify').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		submitButtons:'[type="button"]',
+		fields: {
+			phone: {
+				validators: {
+					stringLength: {
+						min: 11,
+						max: 11,
+						message: '请输入11位手机号码'
+					},
+					regexp: {
+						regexp: /^[0-9]+$/,
+						message: '请输入正确的手机号码'
+					}
+				}
+			}  
+		}
+	});
+	
+	$('.table-user').on('click', '.btn-user-modify', function() {
+		$('#user-modify').bootstrapValidator('resetForm', true);
+		var id = $(this).data('id');
+		$.get('/account/user_modify_list/', {'id': id}, function(data) {
+			for (var key in data) {					
+				if(key=='role_id') {
+					var option_list = [];
+					$('#account-role-id').empty();
+					for(var i=0;i<data['roles'].length;i++) {
+						var role = data['roles'][i];
+						if(data['role_id']==role['id']) {
+							option_list.push('<option value="'+role['id']+'" selected="selected">'+role['name']+'</option>'); 
+						} else {
+							option_list.push('<option value="'+role['id']+'">'+role['name']+'</option>'); 
+						}
+					}
+					for(var key in option_list) {
+						$("#account-role-id").append(option_list[key]); 
+					}
+				};
+				$('input[name=' + key + ']').val(data[key]);
+			}
+			$('#modify-user').modal('show');
+			}, 'json');
+	});
+	
+	$('.btn-modify-submit').on('click', function() {
+		var params = $('.modify-form').serializeArray();
+		$.post('/account/user_modify/', params, function(data) {
+			if(data['error'] == '') {
+				swal({
+					title: '修改成功',
+					text: '',
+					type: "success",
+					showCancelButton: false,
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "确定",
+					cancelButtonText: "关闭",
+					closeOnConfirm: true,
+					closeOnCancel: false
+					},
+					function(isConfirm){
+						$('#modify-user').modal('hide');
+						table.api().ajax.reload();
+					}
+				);
+			}
+			else {
+				swal({
+					title: "错误信息",
+					text: data['error'],
+					type: "error",
+					showCancelButton: false,
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "确定",
+					cancelButtonText: "关闭",
+					closeOnConfirm: true,
+					closeOnCancel: false
+					},
+					function(isConfirm){
+					}
+				);
+			}
+		}, 'json');
+	});
+	        
+	$('.table-user').on('click', '.btn-user-disable', function() {
+		var id = $(this).data('id');
+		$.get('/account/user_disable_data/', {'id': id}, function(data) {
+			if(data['error'] == '') {
+				table.api().ajax.reload();
+			}
+			else {
+				swal({
+					title: "错误信息",
+					text: data['error'],
+					type: "error",
+					showCancelButton: false,
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "确定",
+					cancelButtonText: "关闭",
+					closeOnConfirm: true,
+					closeOnCancel: false
+					},
+					function(isConfirm){
+					}
+				);
+			}
+		}, 'json');
+	});
+	
+	$('.table-user').on('click','.btn-user-delete',function() {
+		var id = $(this).data('id');
+		swal({
+			title: "确定删除?",
+			text: '',
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#DD6B55",
+			confirmButtonText: "确定",
+			cancelButtonText: "关闭",
+			closeOnConfirm: false,
+			closeOnCancel: true
+			},
+			function(isConfirm){
+				if(isConfirm) {
+					$.get('/account/user_delete_data/', {'id': id}, function(data) {
+						if(data['error'] == '') {
+							swal({
+								title: '删除成功',
+								text: '',
+								type: "success",
+								showCancelButton: false,
+								confirmButtonColor: "#DD6B55",
+								confirmButtonText: "确定",
+								cancelButtonText: "关闭",
+								closeOnConfirm: true,
+								closeOnCancel: false
+								},
+								function(isConfirm){
+									table.api().ajax.reload();
+								}
+							);
+						}
+						else {
+							swal({
+								title: "错误信息",
+								text: data['error'],
+								type: "error",
+								showCancelButton: false,
+								confirmButtonColor: "#DD6B55",
+								confirmButtonText: "确定",
+								cancelButtonText: "关闭",
+								closeOnConfirm: true,
+								closeOnCancel: false
+								},
+								function(isConfirm){
+								}
+							);
+						}
+					}, 'json');
+				}
+			}
+		);
+    });
+	
+});
+</script>
+{% endblock %}
+

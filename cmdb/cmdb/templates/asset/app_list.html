@@ -1,0 +1,809 @@
+{% extends "layout.html" %}
+
+{% block link %}
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.bootstrap.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.responsive.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.tableTools.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='multiselect2side/css/jquery.multiselect2side.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+.modal
+{
+	overflow: hidden;
+}
+.modal-dialog{
+    margin-right: auto;
+    margin-left: auto;
+}
+{% endblock %}
+
+{% block content %}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>服务操作</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a>资产管理</a>
+            </li>
+            <li>
+                <a>服务管理</a>
+            </li>
+            <li class="active">
+                <strong>服务操作</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+         
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+					<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#create-app" >添加</button>
+					<button type="button" class="btn btn-primary" data-toggle="modal" id="create-batch-app" data-url="{{ url_for('asset.app_batch_create') }}" >批量添加</button>						
+					<button type="button" class="btn btn-primary btn-danger btn-app-batch-delete" data-backdrop="false" data-toggle="modal" >批量删除</button>					
+					<div class="ibox-tools">
+						<a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <div class="row">
+							<div class="col-sm-12" align="right">
+								<form class="form-inline search-form" action="post">
+									<select class="form-control show-tick" name="field_id" data-style="btn-primary">
+										{% for field in fields %}
+										<option value="{{ field.id }}">{{ field.name }}</option>
+										{% endfor %}
+									</select>
+								  	<input id="search_result" name="search_result" type="text" class="form-control" value="">
+									<button type="button" class="btn btn-primary search-field" >搜索</button>
+								</form>
+								<br />
+							</div>
+						</div>
+                        <table class="table table-striped table-bordered table-hover table-app" >
+                            <thead>
+                                <tr>
+									<th class="center">
+										<label class="position-relative">
+                              				<input type="checkbox" class="ace"/>
+											<span class="lbl"></span>
+										</label>
+									</th>
+                                    <th>应用名</th>
+									<th>应用说明</th>
+									<th>应用端口</th>
+                                    <th>公网IP</th>
+									<th>内网IP</th>
+									<th>基础依赖</th>
+                                    <th>所属产品</th>
+									<th>运行账户</th>
+									<th>负责人</th>
+									<th>数据库实例</th>
+									<th>所属域名</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data-body">
+								{% for service in services.items %}
+								<tr>
+									<td>
+										<label class="position-relative">
+											<input type="checkbox" class="ace" value="{{ service.id }}" />
+											<span class="lbl"></span>
+										</label>
+									</td>
+									<td>{{ service.name }}</td>
+									<td>{{ service.name_alias }}</td>
+									<td>{{ service.port }}</td>
+                                    <td>{{ service.to_json().publish_ip | join('<br />') |safe }}</td>
+									<td>{{ service.to_json().private_ip | join('<br />') | safe }}</td>
+									<td>{{ service.to_json().depend | join('<br />') | safe }}</td>
+                                    <td>{{ service.to_json().business }}</td>
+									<td>{{ service.to_json().user }}</td>
+									<td>{{ service.contact }}</td>
+									<td>{{ service.db_instance }}</td>
+									<td>{{ service.to_json().domain | join('<br />') | safe }}</td>
+									<td>
+                                        <button type="button" class="btn btn-primary btn-app-modify" data-target="#modify-app" data-id="{{ service.id }}" >修改</button>
+				                        <button type="button" class="btn btn-danger btn-app-delete" data-backdrop="false" data-id="{{ service.id }}" >删除</button>
+									</td>
+								</tr>
+								{% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="panel-default row" id="data-page">
+							<div class="col-md-4" >
+								<p>Showing {{ start }} to {{ end }} of {{ services.total }} entries</p>
+							</div>
+							<div class="col-md-8" align="right">
+								<ul class="pagination">
+									<li><a href="/asset/app_list/?id=1">首页</a></li>
+									{% if services.has_prev %}
+										<li><a href="/asset/app_list/?id={{ services.prev_num }}">上一页</a></li>
+									{% else %}
+										<li class="disabled"><a href="#">上一页</a></li>
+									{% endif %}
+									{% for p in page_range_list %}
+										<li {% if services.page == p %} class="active" {% endif %}><a href="/asset/app_list/?id={{ p }}">{{ p }}</a></li>
+									{% endfor %}
+									{% if services.has_next %}
+										<li><a href="/asset/app_list/?id={{ services.next_num }}">下一页</a></li>
+									{% else %}
+										<li class="disabled"><a href="#">上一页</a></li>
+									{% endif %}
+									<li><a href="/asset/app_list/?id={{ services.pages }}">末页</a></li>
+								</ul>
+							</div>
+						</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block feature %}
+{% include "asset/app_add.html" %}
+{% include "asset/app_modify.html" %}
+{% endblock %}
+
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/plugins/dataTables/jquery.dataTables.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.bootstrap.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.responsive.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.tableTools.min.js') }}"></script>
+<script src="{{ url_for('static', filename='multiselect2side/jquery.multiselect2side.js') }}"></script>
+<script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+{% endblock %}
+
+
+{% block js %}
+<script>
+$(document).ready(function() {
+    $('.search-field').on('click', function() {
+		var params = $('.search-form').serializeArray();
+		$.post('/asset/app_list/', params, function(data) {
+			if(data['services'] == '') {
+				$('#data-body').html('<td colSpan="16">No data available in table</td>');
+				$('#data-page').html('<div class="col-md-4" ><p>Showing 0 to 0 of 0 entries</p></div>');
+			}
+			else {
+				var service_list = [];
+			    for (var i in data['services']) {
+				    var message = [];
+				    message.push('<tr><td><label class="position-relative"><input type="checkbox" class="ace" value="' + data['services'][i]['id'] + '" /><span class="lbl"></span></label></td>');
+				    message.push('<td>' + data['services'][i]['name'] + '</td>');
+				    message.push('<td>' + data['services'][i]['name_alias'] + '</td>');
+				    message.push('<td>' + data['services'][i]['port'] + '</td>');
+				    message.push('<td>' + data['services'][i]['publish_ip'].join("<br />") + '</td>');
+				    message.push('<td>' + data['services'][i]['private_ip'].join("<br />") + '</td>');
+				    message.push('<td>' + data['services'][i]['depend'].join("<br />") + '</td>');
+				    message.push('<td>' + data['services'][i]['business'] + '</td>');
+				    message.push('<td>' + data['services'][i]['user'] + '</td>');
+				    message.push('<td>' + data['services'][i]['contact'].join("\n") + '</td>');
+				    message.push('<td>' + data['services'][i]['db_instance'].join("\n") + '</td>');
+					message.push('<td>' + data['services'][i]['domain'].join("<br />") + '</td>');
+				    message.push('<td><button type="button" class="btn btn-primary btn-app-modify" data-target="#modify-app" data-id="' + data['services'][i]['id'] + '" >修改</button><button type="button" class="btn btn-danger btn-app-delete" data-id="' + data['services'][i]['id'] + '" >删除</button></td></tr>');
+				    service_list.push(message.join(' '));
+				}
+				$('#data-body').html(service_list.join(' '));
+				$('#data-page').html('');
+			}
+		}, 'json');
+	});
+
+	$(document).on('click', 'th input:checkbox', function() {
+		var that = this;
+		$(this).closest('table').find('tr > td:first-child input:checkbox')
+				.each(function() {
+						this.checked = that.checked;
+						$(this).closest('tr').toggleClass('selected');
+				});
+	});
+	
+	$('#app-create').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		submitButtons: 'button[type="button"]',
+		fields: {
+			name: {
+				validators: {
+					notEmpty: {
+						message: '应用名称为空'
+					}
+				}
+			},
+			port: {
+				validators: {
+					regexp: {
+						regexp: /^[0-9]+$/,
+						message: '只能包含[0-9]'
+                    }
+				}
+			},
+			contact_email: {
+				validators: {
+					emailAddress: {
+						message: '请输入正确的邮件地址如: xxx@xxx.xx'
+					}
+				}
+			},
+			db_instance: {
+				validators: {
+					regexp: {
+						regexp: /^[A-Za-z0-9\s]+$/,
+						message: '只能包含数字或字母'
+                    }
+				}
+			}
+		}   
+	});
+	
+	$("#create-app").draggable({
+		handle: ".modal-header"
+	});	
+	
+	$('#create-app').on('show.bs.modal', function (event) {
+		if(!event.relatedTarget){return;};
+		var privateiplist = '{% for private_ip in hosts_private %}<option value="{{ private_ip[0] }}">{{ private_ip[1] }}</option>{% endfor %}';
+		$("#private_ip").empty().multiselect2side('destroy');
+		$("#private_ip").html(privateiplist);
+		$("#private_ip").multiselect2side({
+			selectedPosition: 'left',
+			moveOptions: false,
+			labelsx: '已选区',
+			autoSort: true,
+			autoSortAvailable: true,
+			search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
+		});
+
+		var publishiplist = '{% for publish_ip in hosts_publish %}<option value="{{ publish_ip[0] }}">{{ publish_ip[1] }}</option>{% endfor %}';
+		$("#publish_ip").empty().multiselect2side('destroy');
+		$("#publish_ip").html(publishiplist);
+		$("#publish_ip").multiselect2side({
+			selectedPosition: 'left',
+			moveOptions: false,
+			labelsx: '已选区',
+			labeldx: '',
+			autoSort: true,
+			autoSortAvailable: true,
+			search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
+		});
+
+		var dependlist = '{% for depend in depends %}<option value="{{ depend[0] }}">{{ depend[1] }}</option>{% endfor %}';
+		$("#depend").empty().multiselect2side('destroy');
+		$("#depend").html(dependlist);
+		$("#depend").multiselect2side({
+			selectedPosition: 'left',
+			moveOptions: false,
+			labelsx: '已选区',
+			labeldx: '',
+			autoSort: true,
+			autoSortAvailable: true,
+			search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
+		});
+
+		var domainlist = '{% for domain in domains %}<option value="{{ domain[0] }}">{{ domain[1] }}</option>{% endfor %}';
+		$("#domain").empty().multiselect2side('destroy');
+		$("#domain").html(domainlist);
+		$("#domain").multiselect2side({
+			selectedPosition: 'left',
+			moveOptions: false,
+			labelsx: '已选区',
+			labeldx: '',
+			autoSort: true,
+			autoSortAvailable: true,
+			search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
+		});
+		
+		$('input').val('');
+		$('textarea').val('');
+		$('#app-create').bootstrapValidator('resetForm', true);
+		$('#business_id-create .selectpicker').selectpicker('val', 0);
+		$('#business_id-create .selectpicker').selectpicker('refresh');
+		$('#user_id-create .selectpicker').selectpicker('val', 0);
+		$('#user_id-create .selectpicker').selectpicker('refresh');
+		$('#priority_id-create .selectpicker').selectpicker('val', 0);
+		$('#priority_id-create .selectpicker').selectpicker('refresh');
+		$('#status-create .selectpicker').selectpicker('val', -1);
+		$('#status-create .selectpicker').selectpicker('refresh');
+	});
+	
+	$('.btn-create-submit').on('click', function() {
+		var params = $('.create-form').serializeArray();
+
+		var privateiplist = [];
+		$("#private_ipms2side__sx option").each(function()
+			{
+			privateiplist.push($(this).val())
+		});
+
+		var publishiplist = [];
+		$("#publish_ipms2side__sx option").each(function()
+			{
+			publishiplist.push($(this).val())
+		});
+
+		var dependlist = [];
+		$("#dependms2side__sx option").each(function()
+			{
+			dependlist.push($(this).val())
+		});
+
+		var domainlist = [];
+		$("#domainms2side__sx option").each(function()
+			{
+			domainlist.push($(this).val())
+		});
+
+		var datas = {
+      		data: JSON.stringify({
+                "params": params,
+                "publish_ip": publishiplist,
+                "private_ip": privateiplist,
+                "depend": dependlist,
+                "domain": domainlist
+            })
+		};
+
+		$.post('/asset/app_create/', datas, function(data) {
+			if(data['error'] == '') {
+				swal({
+						title: '添加成功',
+						text: '',
+						type: "success",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+						$('#create-app').modal('hide');
+						// table.api().ajax.reload();
+						window.location.href = '/asset/app_list/';
+					}
+				);
+			}
+			else {
+				swal({
+						title: "错误信息",
+						text: data['error'],
+						type: "error",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+					}
+				);
+			}
+		}, 'json');
+	});
+	
+	$('#app-modify').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		submitButtons: 'button[type="button"]',
+		fields: {
+			name: {
+				validators: {
+					notEmpty: {
+						message: '应用名称为空'
+					}
+				}
+			},
+			port: {
+				validators: {
+					regexp: {
+						regexp: /^[0-9]+$/,
+						message: '只能包含[0-9]'
+                    }
+				}
+			},
+			contact_email: {
+				validators: {
+					emailAddress: {
+						message: '请输入正确的邮件地址如: xxx@xxx.xx'
+					}
+				}
+			},
+			db_instance: {
+				validators: {
+					regexp: {
+						regexp: /^[A-Za-z0-9\s]+$/,
+						message: '只能包含数字或字母'
+                    }
+				}
+			}
+		}   
+	});
+	
+	$("#modify-app").draggable({
+		handle: ".modal-header"
+	});	
+	
+	$('.table-app').on('click', '.btn-app-modify', function() {
+		$('#app-modify').bootstrapValidator('resetForm', true);
+		var id = $(this).data('id');
+		$.post('/asset/app_modify_list/', {'id': id}, function(data) {
+			for (var key in data) {
+				if(key=='business_id') {
+					$('#business_id-modify .selectpicker').selectpicker('val', data['business_id']);
+					$('#business_id-modify .selectpicker').selectpicker('refresh');
+				};
+				if(key=='user_id') {
+					$('#user_id-modify .selectpicker').selectpicker('val', data['user_id']);
+					$('#user_id-modify .selectpicker').selectpicker('refresh');
+				};
+				if(key=='priority_id') {
+					$('#priority_id-modify .selectpicker').selectpicker('val', data['priority_id']);
+					$('#priority_id-modify .selectpicker').selectpicker('refresh');
+				};
+				if(key=='status') {
+					$('#status-modify .selectpicker').selectpicker('val', data['status']);
+					$('#status-modify .selectpicker').selectpicker('refresh');
+				};
+				if(key=='contact') {
+					$('#contact-modify').val(data[key].join("\n"));
+				};
+				if(key=='contact_email') {
+					$('#contact_email-modify').val(data[key].join("\n"));
+				};
+				if(key=='db_instance') {
+					$('#db_instance-modify').val(data[key].join("\n"));
+				};
+				if(key=='comment') {
+					$('#comment-modify').val(data[key]);
+				};
+				if(key=='private_ip') {
+					$("#private_ip_modify").empty().multiselect2side('destroy');
+					$("#private_ip_modify").multiselect2side({
+						selectedPosition: 'left',
+						moveOptions: false,
+						labelsx: '已选区',
+						labeldx: '',
+						autoSort: true,
+						autoSortAvailable: true,
+						search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
+					});
+					var list=[], sxlist=[], dxlist=[];
+					for (var i in data[key]) {
+						sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
+						list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
+					};
+					$("#private_ip_modifyms2side__sx").html(sxlist.join("<br />"));
+					$("#private_ip_modify").html(list.join("<br />"));
+					for (var i in data['private_ip_excluded']) {
+						dxlist.push('<option value="'+data['private_ip_excluded'][i][0]+'">'+data['private_ip_excluded'][i][1]+'</option>');
+					};
+					$("#private_ip_modifyms2side__dx").html(dxlist.join("<br />"));
+				};
+
+				if(key=='publish_ip') {
+					$("#publish_ip_modify").empty().multiselect2side('destroy');
+					$("#publish_ip_modify").multiselect2side({
+						selectedPosition: 'left',
+						moveOptions: false,
+						labelsx: '已选区',
+						labeldx: '',
+						autoSort: true,
+						autoSortAvailable: true,
+						search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
+					});
+					var list=[], sxlist=[], dxlist=[];
+					for (var i in data[key]) {
+						sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
+						list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
+					};
+					$("#publish_ip_modifyms2side__sx").html(sxlist.join("<br />"));
+					$("#publish_ip_modify").html(list.join("<br />"));
+					for (var i in data['publish_ip_excluded']) {
+						dxlist.push('<option value="'+data['publish_ip_excluded'][i][0]+'">'+data['publish_ip_excluded'][i][1]+'</option>');
+					};
+					$("#publish_ip_modifyms2side__dx").html(dxlist.join("<br />"));
+				};
+
+				if(key=='depend') {
+					$("#depend_modify").empty().multiselect2side('destroy');
+					$("#depend_modify").multiselect2side({
+						selectedPosition: 'left',
+						moveOptions: false,
+						labelsx: '已选区',
+						labeldx: '',
+						autoSort: true,
+						autoSortAvailable: true,
+						search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
+					});
+					var list=[], sxlist=[], dxlist=[];
+					for (var i in data[key]) {
+						sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
+						list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
+					};
+					$("#depend_modifyms2side__sx").html(sxlist.join("<br />"));
+					$("#depend_modify").html(list.join("<br />"));
+					for (var i in data['depend_excluded']) {
+						dxlist.push('<option value="'+data['depend_excluded'][i][0]+'">'+data['depend_excluded'][i][1]+'</option>');
+					};
+					$("#depend_modifyms2side__dx").html(dxlist.join("<br />"));
+				};
+
+				if(key=='domain') {
+					$("#domain_modify").empty().multiselect2side('destroy');
+					$("#domain_modify").multiselect2side({
+						selectedPosition: 'left',
+						moveOptions: false,
+						labelsx: '已选区',
+						labeldx: '',
+						autoSort: true,
+						autoSortAvailable: true,
+						search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
+					});
+					var list=[], sxlist=[], dxlist=[];
+					for (var i in data[key]) {
+						sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
+						list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
+					};
+					$("#domain_modifyms2side__sx").html(sxlist.join("<br />"));
+					$("#domain_modify").html(list.join("<br />"));
+					for (var i in data['domain_excluded']) {
+						dxlist.push('<option value="'+data['domain_excluded'][i][0]+'">'+data['domain_excluded'][i][1]+'</option>');
+					};
+					$("#domain_modifyms2side__dx").html(dxlist.join("<br />"));
+				};
+				$('input[name=' + key + ']').val(data[key]);
+			}
+			$('#modify-app').modal('show');
+			}, 'json');
+	});
+	
+	$('.btn-modify-submit').on('click', function() {
+		var params = $('.modify-form').serializeArray();
+
+		var privateiplist = [];
+		$("#private_ip_modifyms2side__sx option").each(function()
+			{
+			privateiplist.push($(this).val())
+		});
+
+		var publishiplist = [];
+		$("#publish_ip_modifyms2side__sx option").each(function()
+			{
+			publishiplist.push($(this).val())
+		});
+
+		var dependlist = [];
+		$("#depend_modifyms2side__sx option").each(function()
+			{
+			dependlist.push($(this).val())
+		});
+
+		var domainlist = [];
+		$("#domain_modifyms2side__sx option").each(function()
+			{
+			domainlist.push($(this).val())
+		});
+
+		var datas = {
+      		data: JSON.stringify({
+                "params": params,
+                "publish_ip": publishiplist,
+                "private_ip": privateiplist,
+                "depend": dependlist,
+                "domain": domainlist
+            })
+		};
+
+		$.post('/asset/app_modify/', datas, function(data) {
+			if(data['error'] == '') {
+				swal({
+						title: '修改成功',
+						text: '',
+						type: "success",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+						$('#modify-app').modal('hide');
+						// table.api().ajax.reload();
+						window.location.href = '/asset/app_list/';
+					}
+				);
+			}
+			else {
+				swal({
+						title: "错误信息",
+						text: data['error'],
+						type: "error",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+					}
+				);
+			}
+		}, 'json');
+	});
+
+
+	$('.table-app').on('click','.btn-app-delete',function() {
+		var id = $(this).data('id');
+		swal({
+				title: "确定删除?",
+				text: '',
+				type: "warning",
+				showCancelButton: true,
+				confirmButtonColor: "#DD6B55",
+				confirmButtonText: "确定",
+				cancelButtonText: "关闭",
+				closeOnConfirm: false,
+				closeOnCancel: true
+			},
+			function(isConfirm){
+				if(isConfirm) {
+					$.post('/asset/app_delete_data/', {'id': id}, function(data) {
+						if(data['error'] == '') {
+							swal({
+									title: '删除成功',
+									text: '',
+									type: "success",
+									showCancelButton: false,
+									confirmButtonColor: "#DD6B55",
+									confirmButtonText: "确定",
+									cancelButtonText: "关闭",
+									closeOnConfirm: true,
+									closeOnCancel: false
+								},
+								function(isConfirm){
+									// table.api().ajax.reload();
+									window.location.href = '/asset/app_list/';
+								}
+							);
+						}
+						else {
+							swal({
+									title: "错误信息",
+									text: data['error'],
+									type: "error",
+									showCancelButton: false,
+									confirmButtonColor: "#DD6B55",
+									confirmButtonText: "确定",
+									cancelButtonText: "关闭",
+									closeOnConfirm: true,
+									closeOnCancel: false
+								},
+								function(isConfirm){
+								}
+							);
+						}
+					}, 'json');
+				}
+			}
+		);
+    });
+
+	$('.btn-app-batch-delete').on('click', function(event) {
+		var ids="";
+		$('.table-app').find('tr > td:first-child input:checkbox')
+			.each(function () {
+				if (this.checked) {
+					ids+=$(this).val()+",";  
+					}
+             });
+		if (ids === "") {
+			swal({
+					title: "错误信息",
+					text: "请选择一行数据!",
+					type: "error",
+					showCancelButton: false,
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "确定",
+					cancelButtonText: "关闭",
+					closeOnConfirm: true,
+					closeOnCancel: false
+				},
+				function(isConfirm){
+				});
+		} else {
+			ids = ids.substr(0, ids.length - 1);
+			swal({
+					title: "确定删除?",
+					text: '',
+					type: "warning",
+					showCancelButton: true,
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "确定",
+					cancelButtonText: "关闭",
+					closeOnConfirm: false,
+					closeOnCancel: true
+				},
+				function(isConfirm){
+					if(isConfirm) {
+						$.post('/asset/app_batch_delete_data/', {'ids': ids}, function(data) {
+							if(data['error'] == '') {
+								swal({
+										title: '删除成功',
+										text: '',
+										type: "success",
+										showCancelButton: false,
+										confirmButtonColor: "#DD6B55",
+										confirmButtonText: "确定",
+										cancelButtonText: "关闭",
+										closeOnConfirm: true,
+										closeOnCancel: false
+									},
+									function(isConfirm){
+										// table.api().ajax.reload();
+										window.location.href = '/asset/app_list/';
+									}
+								);
+							}
+							else {
+								swal({
+										title: "错误信息",
+										text: data['error'],
+										type: "error",
+										showCancelButton: false,
+										confirmButtonColor: "#DD6B55",
+										confirmButtonText: "确定",
+										cancelButtonText: "关闭",
+										closeOnConfirm: true,
+										closeOnCancel: false
+									},
+									function(isConfirm){
+										window.location.href = '/asset/app_list/';
+									}
+								);
+							}
+						}, 'json');
+					}
+				}
+			);
+		}
+	});
+	
+	$('#create-batch-app').on('click', function() {
+		var url = $(this).attr('data-url');
+		window.location.href = url;
+	});
+
+
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,22 @@
+{% extends "auth/base.html" %}
+
+{% block content %}
+<div class="middle-box text-center loginscreen animated fadeInDown">
+	<div>
+		<div>
+			<h1 class="logo-name">AppDB</h1>
+		</div>
+		<h2>你好, {{ current_user.name }}</h2>
+		<div>
+			<p>
+				<b>
+				请先激活邮件,如果未收到激活邮件<a href="{{ url_for('auth.reconfirm') }}">请点击重试</a>
+				</b>
+			</p>
+		</div>
+		<br >
+		<a href="{{ url_for('auth.login') }}">已经激活?去登录..</a>
+		<p class="m-t"> <small>AppDB by LeCloud &copy; 2017</small> </p>
+	</div>
+</div>
+{% endblock %}

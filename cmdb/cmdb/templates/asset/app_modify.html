@@ -1,0 +1,160 @@
+<div class="modal fade" id="modify-app" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="exampleModalLabel">应用修改</h3>
+            </div>
+			<form method="post" class="modify-form form-horizontal" id="app-modify" >
+				<div class="modal-body">
+					<input type="hidden" class="form-control" name="id" value=""/>
+					<div class="hr-line-dashed"></div>
+                    <div class="form-group"><label class="col-sm-3 control-label">应用名：</label>
+                        <div class="col-sm-8">
+							<input type="text" class="form-control" name="name">
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+					<div class="hr-line-dashed"></div>
+                    <div class="form-group"><label class="col-sm-3 control-label">应用说明：</label>
+                        <div class="col-sm-8">
+							<input type="text" class="form-control" name="name_alias">
+						</div>
+						<label class="control-label"></label>
+                    </div>
+					<div class="hr-line-dashed"></div>
+                    <div class="form-group"><label class="col-sm-3 control-label">应用端口：</label>
+                        <div class="col-sm-8">
+							<input type="text" class="form-control" name="port">
+						</div>
+						<label class="control-label"></label>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">内网IP：</label>
+                        <div class="col-sm-8">
+						</div>
+						<label class="control-label"></label>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-12">
+							<select name="private_ip_modify[]" id='private_ip_modify' multiple='multiple' size='2' >
+							</select>
+						</div>
+					</div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">外网IP：</label>
+                        <div class="col-sm-8">
+						</div>
+						<label class="control-label"></label>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-12">
+							<select name="publish_ip_modify[]" id='publish_ip_modify' multiple='multiple' size='2' >
+							</select>
+						</div>
+					</div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">基础依赖：</label>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-12">
+							<select name="depend_modify[]" id='depend_modify' multiple='multiple' size='2' >
+							</select>
+						</div>
+					</div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">所属域名：</label>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-12">
+							<select name="domain_modify[]" id='domain_modify' multiple='multiple' size='2' >
+							</select>
+						</div>
+					</div>
+					<div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">所属产品：</label>
+                        <div class="col-sm-8" id="business_id-modify">
+							<select class="form-control selectpicker show-tick" name="business_id" data-style="btn-primary" data-live-search="true">
+								<option value="0">请选择</option>								
+								{% for business in businesses %}
+								<option value="{{ business.id }}">{{ business.name }}</option>
+								{% endfor %}
+							</select>
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+					<div class="hr-line-dashed"></div>
+                   <div class="form-group"><label class="col-sm-3 control-label">运行账户：</label>
+                        <div class="col-sm-8" id="user_id-modify">
+							<select class="form-control selectpicker show-tick" name="user_id" data-style="btn-primary" data-live-search="true">
+								<option value="0">请选择</option>								
+								{% for user in g.users %}
+								<option value="{{ user.id }}">{{ user.name }}</option>
+								{% endfor %}
+							</select>
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+					<div class="hr-line-dashed"></div>
+                    <div class="form-group"><label class="col-sm-3 control-label">优先级：</label>
+                        <div class="col-sm-8" id="priority_id-modify">
+							<select class="form-control selectpicker show-tick" name="priority_id" data-style="btn-primary" data-live-search="true">
+								<option value="0">请选择</option>								
+								{% for priority in g.priorities %}
+								<option value="{{ priority.id }}">{{ priority.name }}</option>
+								{% endfor %}
+							</select>
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+					<div class="hr-line-dashed"></div>
+                    <div class="form-group"><label class="col-sm-3 control-label">状态：</label>
+                        <div class="col-sm-8" id="status-modify">
+							<select class="form-control selectpicker show-tick" name="status" data-style="btn-primary" data-live-search="true">
+								<option value="-1">请选择</option>								
+								<option value="0">使用</option>
+								<option value="1">下线</option>
+							</select>
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+					<div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">负责人：</label>
+                        <div class="col-sm-8">
+							<input type="text" class="form-control" name="contact" id="contact-modify">
+						</div>
+						<label class="control-label"></label>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">联系邮箱：</label>
+                        <div class="col-sm-8">
+							<input type="text" class="form-control" name="contact_email" id="contact_email-modify">
+						</div>
+						<label class="control-label"></label>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">数据库实例：</label>
+                        <div class="col-sm-8">
+							<textarea class="form-control" cols="2" name="db_instance" rows="2" id="db_instance-modify"></textarea>
+						</div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">备注：</label>
+                        <div class="col-sm-8">
+							<textarea class="form-control" cols="2" name="comment" rows="2" id="comment-modify"></textarea>
+						</div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary btn-modify-submit">修改</button>
+				</div>
+			</form>
+        </div>
+    </div>
+</div>

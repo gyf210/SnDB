@@ -1,0 +1,429 @@
+{% extends "layout.html" %}
+
+{% block link %}
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.bootstrap.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.responsive.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.tableTools.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+.modal
+{
+	overflow: hidden;
+}
+.modal-dialog{
+    margin-right: auto;
+    margin-left: auto;
+}
+{% endblock %}
+
+
+{% block content %}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>机房操作</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a>资产管理</a>
+            </li>
+            <li>
+                <a>机房管理</a>
+            </li>
+            <li class="active">
+                <strong>机房操作</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+         
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+					<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#create-idc">添加</button>
+					<button type="button" class="btn btn-primary btn-danger btn-idc-batch-delete" data-backdrop="false" data-toggle="modal">批量删除</button>						
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover table-idc" >
+                            <thead>
+                                <tr>
+									<th class="center">
+										<label class="position-relative">
+                              				<input type="checkbox" class="ace"/>
+											<span class="lbl"></span>
+										</label>
+									</th>
+                                    <th>机房名称</th>
+                                    <th>运营商</th>
+									<th>备注</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block feature %}
+{% include "asset/idc_add.html" %}
+{% include "asset/idc_modify.html" %}
+{% endblock %}
+
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/plugins/dataTables/jquery.dataTables.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.bootstrap.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.responsive.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.tableTools.min.js') }}"></script>
+{% endblock %}
+
+
+{% block js %}
+<script>
+$(document).ready(function() {
+	var table = $('.table-idc').dataTable({
+			"ordering": false,
+			"ajax": "/asset/idc_list_data/",
+			"columns": [
+			{"render": function(data, type, row) {
+				return 	'<label class="position-relative">' +
+						'<input type="checkbox" class="ace" value="'+row['id']+'"/>' +
+						'<span class="lbl"></span>' +
+						'</label>';}
+			},
+			{"data": "name"},
+			{"data": function(row) {
+					var operator_list = ['电信','联通','BGP'];
+					return operator_list[row['operator']];
+				}
+			},
+			{"data": "comment"},
+			{"data": function(row) {
+				var elements = [];
+				elements.push('<button type="button" class="btn btn-primary btn-idc-modify" data-target="#modify-idc" data-id="' + row['id'] + '">修改</button>');
+				elements.push('<button type="button" class="btn btn-danger btn-idc-delete" data-backdrop="false" data-id="' + row['id'] + '">删除</button>');
+				return elements.join(' ');}
+			}
+		]
+	});
+	
+	$(document).on('click', 'th input:checkbox', function() {
+		var that = this;
+		$(this).closest('table').find('tr > td:first-child input:checkbox')
+				.each(function() {
+					this.checked = that.checked;
+					$(this).closest('tr').toggleClass('selected');
+				});
+	});
+	$('#idc-create').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		submitButtons:'[type="button"]',
+		fields: {
+			name: {
+				validators: {
+					notEmpty: {
+						message: '机房名称为空'
+					}
+				}
+			}
+		}
+	});
+	
+	$("#create-idc").draggable({
+		handle: ".modal-header"
+	});
+	
+	$('#create-idc').on('show.bs.modal', function (event) {
+		if(!event.relatedTarget){return;}
+		$('input').val('');
+		$('textarea').val('');
+		$('#idc-create').bootstrapValidator('resetForm', true);
+		$('#operator-create .selectpicker').selectpicker('val', -1);
+		$('#operator-create .selectpicker').selectpicker('refresh');		
+	});
+	
+	$('.btn-create-submit').on('click', function(event) {
+		var params = $('.create-form').serializeArray();
+		$.post('/asset/idc_create/', params, function(data) {
+			if(data['error'] == '') {
+				swal({
+						title: '添加成功',
+						text: '',
+						type: "success",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+						$('#create-idc').modal('hide');
+						// table.api().ajax.reload();
+						window.location.href = '/asset/idc_list/';
+					}
+				);
+			}
+			else {
+				swal({
+						title: "错误信息",
+						text: data['error'],
+						type: "error",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+					}
+				);
+			}
+		}, 'json');
+	});
+	
+	$('#idc-modify').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		submitButtons:'[type="button"]',
+		fields: {
+			name: {
+				validators: {
+					notEmpty: {
+						message: '机房名称为空'
+					}
+				}
+			}		
+		}
+	});
+	
+	$("#modify-idc").draggable({
+		handle: ".modal-header"
+	});
+	
+	$('.table-idc').on('click', '.btn-idc-modify', function(event) {
+		$('#idc-modify').bootstrapValidator('resetForm', true);
+		var id = $(this).data('id');
+		$.post('/asset/idc_modify_list/', {'id': id}, function(data) {
+			for (var key in data) {
+				if(key=='operator') {
+					$('#operator-modify .selectpicker').selectpicker('val', data['operator']);
+					$('#operator-modify .selectpicker').selectpicker('refresh');
+				};
+				if(key=='comment') {
+					$('#modify-comment').val(data[key]);
+				};
+				$('input[name=' + key + ']').val(data[key]);
+			}
+			$('#modify-idc').modal('show');
+			}, 'json');
+	});
+	
+	$('.btn-modify-submit').on('click', function(event) {
+		var params = $('.modify-form').serializeArray();
+		$.post('/asset/idc_modify/', params, function(data) {
+			if(data['error'] == '') {
+				swal({
+						title: '修改成功',
+						text: '',
+						type: "success",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+						$('#modify-idc').modal('hide');
+						// table.api().ajax.reload();
+						window.location.href = '/asset/idc_list/';
+					}
+				);
+			}
+			else {
+				swal({
+						title: "错误信息",
+						text: data['error'],
+						type: "error",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+					},
+					function(isConfirm){
+					}
+				);
+			}
+		}, 'json');
+	});
+	        
+	$('.table-idc').on('click','.btn-idc-delete',function(event) {
+		var id = $(this).data('id');
+		swal({
+				title: "确定删除?",
+				text: '',
+				type: "warning",
+				showCancelButton: true,
+				confirmButtonColor: "#DD6B55",
+				confirmButtonText: "确定",
+				cancelButtonText: "关闭",
+				closeOnConfirm: false,
+				closeOnCancel: true
+			},
+			function(isConfirm){
+				if(isConfirm) {
+					$.post('/asset/idc_delete_data/', {'id': id}, function(data) {
+						if(data['error'] == '') {
+							swal({
+									title: '删除成功',
+									text: '',
+									type: "success",
+									showCancelButton: false,
+									confirmButtonColor: "#DD6B55",
+									confirmButtonText: "确定",
+									cancelButtonText: "关闭",
+									closeOnConfirm: true,
+									closeOnCancel: false
+								},
+								function(isConfirm){
+									window.location.href = '/asset/idc_list/';
+								}
+							);
+						}
+						else {
+							swal({
+									title: "错误信息",
+									text: data['error'],
+									type: "error",
+									showCancelButton: false,
+									confirmButtonColor: "#DD6B55",
+									confirmButtonText: "确定",
+									cancelButtonText: "关闭",
+									closeOnConfirm: true,
+									closeOnCancel: false
+								},
+								function(isConfirm){
+								}
+							);
+						}
+					}, 'json');
+				}
+			}
+		);
+    });
+	
+	$('.btn-idc-batch-delete').on('click', function(event) {
+		var ids="";
+		$('.table-idc').find('tr > td:first-child input:checkbox')
+			.each(function () {
+				if (this.checked) {
+					ids+=$(this).val()+",";  
+					}
+             });	
+		if (ids === "") {
+			swal({
+					title: "错误信息",
+					text: "请选择一行数据!",
+					type: "error",
+					showCancelButton: false,
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "确定",
+					cancelButtonText: "关闭",
+					closeOnConfirm: true,
+					closeOnCancel: false
+				},
+				function(isConfirm){
+				});
+		} else {
+			ids = ids.substr(0, ids.length - 1);
+			swal({
+					title: "确定删除?",
+					text: '',
+					type: "warning",
+					showCancelButton: true,
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "确定",
+					cancelButtonText: "关闭",
+					closeOnConfirm: false,
+					closeOnCancel: true
+				},
+				function(isConfirm){
+					if(isConfirm) {
+						$.post('/asset/idc_batch_delete_data/', {'ids': ids}, function(data) {
+							if(data['error'] == '') {
+								swal({
+										title: '删除成功',
+										text: '',
+										type: "success",
+										showCancelButton: false,
+										confirmButtonColor: "#DD6B55",
+										confirmButtonText: "确定",
+										cancelButtonText: "关闭",
+										closeOnConfirm: true,
+										closeOnCancel: false
+									},
+									function(isConfirm){
+                                        window.location.href = '/asset/idc_list/';
+									}
+								);
+							}
+							else {
+								swal({
+										title: "错误信息",
+										text: data['error'],
+										type: "error",
+										showCancelButton: false,
+										confirmButtonColor: "#DD6B55",
+										confirmButtonText: "确定",
+										cancelButtonText: "关闭",
+										closeOnConfirm: true,
+										closeOnCancel: false
+									},
+									function(isConfirm){
+										window.location.href = '/asset/idc_list/';
+									}
+								);
+							}
+						}, 'json');
+					}
+				}
+			);
+		}
+	});
+	
+});
+</script>
+{% endblock %}

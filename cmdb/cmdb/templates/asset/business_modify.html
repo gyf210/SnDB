@@ -1,0 +1,52 @@
+<div class="modal fade" id="modify-business" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="exampleModalLabel">产品修改</h3>
+            </div>
+			<form method="post" class="modify-form form-horizontal" id="business-modify" >
+				<div class="modal-body">
+					<input type="hidden" class="form-control" name="id" value=""/>
+					<div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">产品名称：</label>
+                        <div class="col-sm-8">
+							<input type="text" class="form-control" name="name">
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group"><label class="col-sm-3 control-label">所属产品线：</label>
+                        <div class="col-sm-8" id="product-modify">
+							<select class="form-control selectpicker show-tick" name="pid" data-style="btn-primary" data-live-search="true">
+								<option value="0">请选择</option>
+								{% for business in businesses %}
+								<option value="{{ business.id }}">{{ business.name }}</option>
+								{% endfor %}
+							</select>
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">负责人邮箱：</label>
+                        <div class="col-sm-8">
+							<input type="text" class="form-control" name="contact">
+						</div>
+						<label class="control-label"></label>
+                    </div>
+					<div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">备注：</label>
+                        <div class="col-sm-8">
+							<textarea id="modify-comment" class="form-control" cols="4" name="comment" rows="4"></textarea>
+						</div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary btn-modify-submit">修改</button>
+				</div>
+			</form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,51 @@
+<div class="modal fade" id="create-auto-host" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="exampleModalLabel">主机自动创建</h3>
+            </div>
+			<form class="create-auto-form form-horizontal" id="host-auto-create" method="post" >
+				<div class="modal-body">
+					<div class="hr-line-dashed"></div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">主机IP：</label>
+						<div class="col-sm-8">
+							<textarea id="auto_ip" class="form-control" cols="4" name="auto_ip" rows="4" placeholder="(多个IP以空格符分隔)"></textarea>
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>	
+					</div>
+					<div class="hr-line-dashed"></div>	
+	                    <div class="form-group"><label class="col-sm-3 control-label">所属产品：</label>
+                        <div class="col-sm-8" id="business_id-auto-create">
+							<select class="form-control selectpicker show-tick" name="business_id" data-style="btn-primary" data-live-search="true">
+								<option value="0">请选择</option>
+								{% for business in businesses %}
+								<option value="{{ business.id }}">{{ business.name }}</option>
+								{% endfor %}
+							</select>
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+					<div class="hr-line-dashed"></div>
+                    <div class="form-group"><label class="col-sm-3 control-label">主机状态：</label>
+                        <div class="col-sm-8" id="status-auto-create">
+							<select class="form-control selectpicker show-tick" name="status" data-style="btn-primary" data-live-search="true">
+								<option value="-1">请选择</option>
+								<option value="0">使用</option>
+								<option value="1">维护</option>
+								<option value="2">空闲</option>
+							</select>
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary btn-create-auto-submit">添加</button>
+				</div>
+			</form>
+        </div>
+    </div>
+</div>

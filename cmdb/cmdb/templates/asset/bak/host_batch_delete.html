@@ -1,0 +1,137 @@
+{% extends "layout.html" %}
+
+{% block link %}
+<link href="{{ url_for('static', filename='css/plugins/sweetalert/sweetalert.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>批量删除</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a>资产管理</a>
+            </li>
+            <li>
+                <a>主机管理</a>
+            </li>
+            <li class="active">
+                <strong>主机操作</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+				{% if error %}
+					<div class="alert alert-danger" role="alert">{{ error|safe }}</div>
+				{% endif %}
+                <div class="ibox-title">
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+						
+                <div class="ibox-content">
+					<div class="hr-line-dashed"></div>
+						<p>填写内网IP,多个IP空格或换行分隔(不支持IP网段)</p>
+					<div class="hr-line-dashed"></div>					
+					<form method="post" class="form-horizontal" id="host-delete">
+						<div>
+							<textarea id="host-batch-delete" name="hosts" type="text" placeholder="192.168.1.1" class="form-control" style="height:100px;overflow:scroll;"></textarea>
+						</div>
+					<div class="hr-line-dashed"></div>
+						<div class="form-group">
+							<div class="col-sm-2 col-sm-offset-2">
+								<button class="btn btn-white btn-clean-submit" type="button">重置</button>
+								<button class="btn btn-primary btn-submit" type="button">提交</button>
+							</div>
+						</div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+{% endblock %}
+
+
+{% block js %}
+<script>
+$(document).ready(function() {
+	$('.btn-clean-submit').on('click', function() {
+		$('#host-batch-delete').val('');
+	});
+	
+	$('.btn-submit').on('click', function() {
+		var hosts = $('#host-batch-delete').val();
+		swal({
+			title: "确定删除?",
+			text: '',
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#DD6B55",
+			confirmButtonText: "确定",
+			cancelButtonText: "关闭",
+			closeOnConfirm: false,
+			closeOnCancel: true
+			},
+			function(isConfirm){
+				if(isConfirm) {
+					$.post("{{ url_for('asset.host_batch_delete') }}", {'hosts': hosts}, function(data) {
+						if(data['error'] == '') {
+							swal({
+								title: '删除成功',
+								text: '',
+								type: "success",
+								showCancelButton: false,
+								confirmButtonColor: "#DD6B55",
+								confirmButtonText: "确定",
+								cancelButtonText: "关闭",
+								closeOnConfirm: true,
+								closeOnCancel: false
+								},
+								function(isConfirm){
+									window.location.href="{{ url_for('asset.host_list') }}";
+								}
+							);
+						}
+						else {
+							swal({
+								title: "错误信息",
+								text: data['error'],
+								type: "error",
+								showCancelButton: false,
+								confirmButtonColor: "#DD6B55",
+								confirmButtonText: "确定",
+								cancelButtonText: "关闭",
+								closeOnConfirm: true,
+								closeOnCancel: false
+								},
+								function(isConfirm){
+								}
+							);
+						}
+					}, 'json');
+				}
+			}
+		);		
+	});
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,550 @@
+{% extends "layout.html" %}
+
+{% block link %}
+<link href="{{ url_for('static', filename='zTree_v3/css/zTreeStyle/zTreeStyle.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+
+.ztree li span.button.add{margin-left:2px; margin-right: -1px; background-position:-144px 0; vertical-align:top; *vertical-align:middle;}
+#info{display: none}
+#info ul li{line-height: 25px;font-size: 15px;}
+#info ul li label{display: inline-block;width:100px;text-align: right;font-weight: bold;margin-right:25px;}
+.modal{overflow: hidden;}
+.modal-dialog{margin-right: auto; margin-left: auto;}
+{% endblock %}
+
+
+{% block content %}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>业务Tree</h2>
+        <ol class="breadcrumb">
+            <li> 
+                <a>资产管理</a>
+            </li>
+            <li>
+                <a>业务管理</a>
+            </li>
+            <li class="active">
+                <strong>业务Tree</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+         
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+					 <h5>业务Tree</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="ibox-content">
+                    <div>
+						<ul id="business_tree" class="ztree"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+		
+        <div class="col-lg-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+					 <h5>业务详情</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="ibox-content">
+                    <div id="info">
+						<ul class="list-unstyled">
+							<li>
+								<label>业务名称：</label>
+								<span id="tree_business_name"></span>
+							</li>
+							<li>
+								<label>主机详情：</label>
+								<ul id="tree_business_host">
+								</ul>
+							</li>
+							<li>
+								<label>应用详情：</label>
+								<ul id="tree_business_service">
+								</ul>
+							</li>
+							<li>
+								<label>业务负责人：</label>
+								<span id="tree_business_owner"></span>
+							</li>
+						</ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</div>
+</div>
+
+<div class="modal fade" id="create-business" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="exampleModalLabel">产品创建</h3>
+            </div>
+			<form class="create-form form-horizontal" id="business-create" method="post" >
+				<div class="modal-body">
+					<div class="hr-line-dashed"></div>
+                    <div class="form-group"><label class="col-sm-3 control-label">产品名称：</label>
+                        <div class="col-sm-8">
+							<input type="text" class="form-control" name="name">
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">负责人邮箱：</label>
+                        <div class="col-sm-8">
+							<input type="email" class="form-control" name="contact">
+						</div>
+						<label class="control-label"></label>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">备注：</label>
+                        <div class="col-sm-8">
+							<textarea class="form-control" cols="2" name="comment" rows="2"></textarea>
+						</div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary btn-create-submit">添加</button>
+				</div>
+			</form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modify-business" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="exampleModalLabel">产品修改</h3>
+            </div>
+			<form method="post" class="modify-form form-horizontal" id="business-modify" >
+				<div class="modal-body">
+					<input type="hidden" class="form-control" name="id" value=""/>
+					<div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">产品名称：</label>
+                        <div class="col-sm-8">
+							<input type="text" class="form-control" name="name">
+						</div>
+						<label class="control-label"><span style="color: red;">*</span></label>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">负责人邮箱：</label>
+                        <div class="col-sm-8">
+							<input type="email" class="form-control" name="contact">
+						</div>
+						<label class="control-label"></label>
+                    </div>
+					<div class="hr-line-dashed"></div>
+					<div class="form-group"><label class="col-sm-3 control-label">备注：</label>
+                        <div class="col-sm-8">
+							<textarea id="modify-comment" class="form-control" cols="2" name="comment" rows="2"></textarea>
+						</div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary btn-modify-submit">修改</button>
+				</div>
+			</form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block feature %}
+{% endblock %}
+
+
+{% block script %}
+<script src="{{ url_for('static', filename='zTree_v3/js/jquery.ztree.all.min.js') }}"></script>
+{% endblock %}
+
+
+{% block js %}
+<script>
+$(document).ready(function() {
+	var info_div = $("#info");
+	var tree_business_name = $("#tree_business_name")
+	var tree_business_host = $("#tree_business_host")
+	var tree_business_service = $("#tree_business_service")
+	var tree_business_domain = $("#tree_business_domain")
+	var tree_business_owner = $("#tree_business_owner")
+	
+	$("#create-business").draggable({
+		handle: ".modal-header"
+	});	
+	
+	$("#modify-business").draggable({
+		handle: ".modal-header"
+	});
+	
+	$('#business-create').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		submitButtons: 'button[type="button"]',		
+		fields: {
+			name: {
+				validators: {
+					notEmpty: {
+						message: '产品名称为空'
+					}
+				}
+			},
+			contact: {
+				validators: {
+					emailAddress: {
+						message: '邮箱地址格式有误'
+					}
+				}
+			}	
+		}
+	});
+	
+	$('#business-modify').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		submitButtons: 'button[type="button"]',	
+		fields: {
+			name: {
+				validators: {
+					notEmpty: {
+						message: '产品名称为空'
+					}
+				}
+			},
+			contact: {
+				validators: {
+					emailAddress: {
+						message: '邮箱地址格式有误'
+					}					
+				}
+			}			
+		}
+	});	
+	
+	function show_business_info(){
+		info_div.hide();
+		$.post("/asset/business_tree_info/", {"id": id}, function(data){
+                if(data.status == 0){
+                    info_div.fadeIn("fast");
+                    tree_business_name.text(data.business_name);
+					
+					if(data.business_host) {
+						var host_list = [];
+						for(var i in data.business_host){
+							host_list.push('<li>' + data.business_host[i].idc_name + '<ul>');
+							var ip_list = data.business_host[i].private_ip.split(',');
+							for(var j in ip_list){
+								host_list.push('<li>' + ip_list[j] + '</li>')
+							}
+						host_list.push('</ul></li>');}
+						tree_business_host.html(host_list.join(''));
+					}else{
+						tree_business_host.text('');
+					}
+
+					if(data.business_service){
+						var service_list = [];
+						for(var i in data.business_service){
+							service_list.push('<li>' + data.business_service[i] + '</li>');}
+						tree_business_service.html(service_list.join(''));						
+					}else{
+						tree_business_service.text('');
+					}
+
+					tree_business_owner.text(data.business_owner);
+                }else{
+					info_div.fadeIn("fast"); 
+					tree_business_name.text('');
+					tree_business_host.text('');
+					tree_business_service.text('');
+					tree_business_domain.text('');
+					tree_business_owner.text('');
+                }
+
+            });
+	};
+	
+	function zTreeOnClick(event, treeId, treeNode) {
+		id = treeNode.id ;
+		show_business_info()
+	};
+		
+	function addHoverDom(treeId, treeNode) {
+		var sObj = $("#" + treeNode.tId + "_span");
+		if (treeNode.editNameFlag || $("#addBtn_"+treeNode.tId).length>0) return;
+		var addStr = "<span class='button add' id='addBtn_" + treeNode.tId
+			+ "' title='增加' onfocus='this.blur();'></span>";
+		sObj.after(addStr);
+		var btn = $("#addBtn_"+treeNode.tId);
+		if (btn) btn.bind("click", function(){
+			$('#create-business').modal('show');
+			$("input").val('');
+			$("textarea").val('');
+			$('#business-create').bootstrapValidator('resetForm', true);
+			$('.btn-create-submit').on('click', function() {
+				var params = $('.create-form').serializeArray();
+				var pid = treeNode.id;
+				var datas = {
+					data: JSON.stringify({
+						"params": params,
+						"pid": pid
+					})
+				};
+				$.post('/asset/business_tree_create/', datas, function(data) {
+					if(data['error'] == '') {
+						swal({
+							title: '添加成功',
+							text: '',
+							type: "success",
+							showCancelButton: false,
+							confirmButtonColor: "#DD6B55",
+							confirmButtonText: "确定",
+							cancelButtonText: "关闭",
+							closeOnConfirm: true,
+							closeOnCancel: false
+							},
+							function(isConfirm){
+								var treeObj = $.fn.zTree.getZTreeObj("business_tree");
+								$('#create-business').modal('hide');
+								treeObj.addNodes(treeNode, {id:data['id'], pid:treeNode.id, name:data['name']});
+								var new_node = treeObj.getNodeByParam("id", data['id'], null);
+								treeObj.selectNode(new_node);
+								id = data['id'];
+								show_business_info();
+							}
+						);
+					}
+					else {
+						swal({
+							title: "错误信息",
+							text: data['error'],
+							type: "error",
+							showCancelButton: false,
+							confirmButtonColor: "#DD6B55",
+							confirmButtonText: "确定",
+							cancelButtonText: "关闭",
+							closeOnConfirm: true,
+							closeOnCancel: false
+							},
+							function(isConfirm){
+							}
+						);
+					}
+				}, 'json');
+				return false;
+			});
+		});
+	};
+	
+	function removeHoverDom(treeId, treeNode) {
+		$("#addBtn_"+treeNode.tId).unbind().remove();
+	};
+	
+	function showRemoveBtn(treeId, treeNode) {
+		var node = treeNode.getParentNode();
+		if(!node) {
+			return false;
+		}
+		return true;
+	};
+	
+	function showRenameBtn(treeId, treeNode) {
+		var node = treeNode.getParentNode();
+		if(!node || node.name == 'ROOT') {
+			return false;
+		}
+		return true;
+	};
+
+	function beforeEditName(treeId, treeNode) {
+		var treeObj = $.fn.zTree.getZTreeObj("business_tree");
+		treeObj.selectNode(treeNode);
+		var id = treeNode.id;
+		var pid = treeNode.pid;
+		$.post('/asset/business_modify_list/', {'id': id}, function(data) {
+			for(var key in data) {
+				if(key=='comment') {
+					$('#modify-comment').val(data[key]);
+				};
+				$('input[name=' + key + ']').val(data[key]);
+			}
+			$('#modify-business').modal('show');
+		}, 'json');
+			
+		$('.btn-modify-submit').on('click', function() {
+			var params = $('.modify-form').serializeArray();
+			var datas = {
+				data: JSON.stringify({
+					"params": params,
+					"pid": pid
+				})
+			};
+			$.post('/asset/business_tree_modify/', datas, function(data) {
+				if(data['error'] == '') {
+					swal({
+						title: '修改成功',
+						text: '',
+						type: "success",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+						},
+						function(isConfirm){
+							$('#modify-business').modal('hide');
+							treeNode.name = data['name'];
+							treeObj.updateNode(treeNode);
+							id = treeNode.id;
+							show_business_info();
+						}
+					);
+				}
+				else {
+					swal({
+						title: "错误信息",
+						text: data['error'],
+						type: "error",
+						showCancelButton: false,
+						confirmButtonColor: "#DD6B55",
+						confirmButtonText: "确定",
+						cancelButtonText: "关闭",
+						closeOnConfirm: true,
+						closeOnCancel: false
+						},
+						function(isConfirm){
+						}
+					);
+				}
+			}, 'json');
+		});		
+		return false;
+	};
+	
+	function beforeRemove(treeId, treeNode) {
+	    var treeObj = $.fn.zTree.getZTreeObj("business_tree");
+		var parentNode = treeObj.getNodeByParam("id", treeNode.pid, null);
+		var node_id = treeNode.id;
+		$.post('/asset/business_tree_delete/', {'id': node_id}, function(data) {
+			if(data['error'] == '') {
+				swal({
+					title: '删除成功',
+					text: '',
+					type: "success",
+					showCancelButton: false,
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "确定",
+					cancelButtonText: "关闭",
+					closeOnConfirm: true,
+					closeOnCancel: false}, function(isConfirm){
+						treeObj.removeNode(treeNode);
+						treeObj.selectNode(parentNode);
+						id = parentNode.id;
+						show_business_info();
+					});
+			} else {
+				swal({
+					title: "错误信息",
+					text: data['error'],
+					type: "error",
+					showCancelButton: false,
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "确定",
+					cancelButtonText: "关闭",
+					closeOnConfirm: true,
+					closeOnCancel: false}, function(isConfirm){}
+				);
+			}
+		});
+		return false;
+	};
+	
+	
+	var setting = {
+		view: {
+			fontCss : {fontSize: "25px"},
+			addHoverDom: addHoverDom,
+			removeHoverDom: removeHoverDom,
+			selectedMulti: false
+		},
+		edit: {
+			enable: true,
+			editNameSelectAll: true,
+			showRemoveBtn: showRemoveBtn,
+			removeTitle: "删除",
+			showRenameBtn: showRenameBtn,
+			renameTitle: "修改"
+		},		
+		check: {
+			enable: false
+		},
+		data: {
+			simpleData: {
+				enable: true,
+				idKey: "id",
+				pIdKey: "pid"
+			}
+		},
+		callback: {
+			beforeEditName: beforeEditName,
+			beforeRemove: beforeRemove,
+			onClick: zTreeOnClick
+		}
+	};
+	
+	$.ajax({
+		type: "POST",
+		url: "/asset/business_tree_data_list/",
+		dataType: "json",
+		success: function(data) {
+			$.fn.zTree.init($("#business_tree"), setting, data);
+		}
+	});
+	
+});
+</script>
+{% endblock %}

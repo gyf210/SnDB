@@ -1,0 +1,20 @@
+{% extends "auth/base.html" %}
+
+{% block content %}
+<div class="middle-box text-center loginscreen animated fadeInDown">
+	<div>
+		<div>
+			<h1 class="logo-name">AppDB</h1>
+		</div>
+		<h2>注册成功</h2>
+		<div>
+			<b>
+				激活邮件已经被发送到<a href="http://{{ email }}">{{ email }}</a>, 请登陆邮箱点击邮件中的激活链接完成激活. 请确认邮箱地址正确, 并注意邮件是否被归入垃圾箱.
+			</b>
+		</div>
+		<br >
+		<a href="{{ url_for('auth.login') }}">已经激活?去登录..</a>
+		<p class="m-t"> <small>AppDB by LeCloud &copy; 2017</small> </p>
+	</div>
+</div>
+{% endblock %}

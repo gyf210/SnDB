@@ -1,0 +1,4 @@
+# 访问方式（token)
+token = eyJhbGciOiJIUzI1NiIsImV4cCI6MTgwMDE4MDQ1NywiaWF0IjoxNDg0ODIwNDU3fQ.eyJpZCI6MX0.ZvceDJg50W-mXvK42N-CW1946NJ93nywzvJskogxK-A
+
+curl -X POST -H "Authorization: Token eyJhbGciOiJIUzI1NiIsImV4cCI6MTgwMDE4MDQ1NywiaWF0IjoxNDg0ODIwNDU3fQ.eyJpZCI6MX0.ZvceDJg50W-mXvK42N-CW1946NJ93nywzvJskogxK-A" -d '{"company":"", "business":""}' 127.0.0.1:9000/api/v1/serviceinfo/
