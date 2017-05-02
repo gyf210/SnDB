@@ -4,8 +4,9 @@ import os
 import json
 from hashlib import md5
 import xlrd
+import tablib
 from funcy import flatten
-from flask import Blueprint, render_template, jsonify, request, g, current_app, redirect, url_for
+from flask import Blueprint, render_template, jsonify, request, g, current_app, redirect, url_for, make_response
 from flask_login import login_required, current_user
 from ..models import Idc, Host, Business, Service, HostType, System, \
                      Env, Domain, Depend, ServiceUser, Priority, PrivateIp, PublishIp, VipIp, ServiceAgent
@@ -15,7 +16,7 @@ from ..utils.checkurl import checkurl
 from ..utils.changeip import validate_ip
 from ..utils.decorators import admin_required
 from ..utils.createuuid import createuuid
-from .raw_sql import BUSINESS_HOST_IDC_DATA
+from .raw_sql import BUSINESS_HOST_IDC_DATA, HOST_IDC_SERVICE_BUSINESS_DATA
 
 asset = Blueprint('asset', __name__)
 
@@ -442,6 +443,19 @@ def host_batch_delete_data():
             _error = '主机{} 关联应用无法删除'.format(', '.join(set(_errors)))
     return jsonify({'error': _error})
 
+
+@asset.route('/host_batch_output_data/')
+@login_required
+@admin_required
+def host_batch_output_data():
+    headers = ['SN', 'CPU', 'MEMORY', 'DISK', '内网IP', '公网IP', '虚拟IP', '宿主IP', '所属机房','主机类型', '操作系统', '所属环境', '所属业务', '所属服务', '负责人', '备注']
+    _results = db.session.execute(HOST_IDC_SERVICE_BUSINESS_DATA).fetchall()
+    data = tablib.Dataset(*_results, headers=headers)
+    ret = make_response(data.xlsx)
+    filename = '{}.xlsx'.format('HOST_SERVICE_DATA')
+    ret.headers["Content-Disposition"] = "attachment; filename={}".format(filename)
+    return ret 
+    
 
 @asset.route('/business_list/')
 @login_required
@@ -999,7 +1013,6 @@ def app_batch_create():
                 # 调用灵枢API接口
                 try:
                     for data_service in data_service_list:
-                        print(data_service)
                         _service = Service.query.filter_by(name=data_service['name'], business_id=data_service['business_id']).first()
                         if _service:
                             db.session.delete(_service)

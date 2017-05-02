@@ -44,8 +44,9 @@
                 <div class="ibox-title">
 					<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#create-host">添加</button>
 					<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#create-auto-host">批量添加</button>
+ 					<a type="button" class="btn btn-primary" href="/asset/host_batch_output_data/">批量导出</a>
 					<button type="button" class="btn btn-primary btn-danger btn-host-batch-delete" data-backdrop="false" data-toggle="modal">批量删除</button>
-                    <div class="ibox-tools">
+                   <div class="ibox-tools">
                         <a class="collapse-link">
                             <i class="fa fa-chevron-up"></i>
                         </a>
@@ -614,6 +615,7 @@ $(document).ready(function() {
 			}
 		);
     });
+		
 	
 	$('.btn-host-batch-delete').on('click', function(event) {
 		var ids="";
