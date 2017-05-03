@@ -102,63 +102,64 @@
 <script>
 $(document).ready(function() {
 	var table = $('.table-app').dataTable({
-				dom: 'Bfrtip',
-				buttons: [
-					'csv', 'excel'
-				],
-				"lengthMenu": [[10, 25, 50, -1], [10, 50, 100, 200]],			
-				"ajax": "/info/host_data/",
-				"columns": [	
-					{"data": "name"},
-					{"data": "idc"},
-					{"data": "business"},
-					{"data": function(row) {
-						if (row['service'] != null) {
-							return row['service'];
-						}else {
-							return '';}
-						}
-					},
-					{"data": "host_type"},
-					{"data": "system"},
-					{"data": "cpu"},
-					{"data": "memory"},
-					{"data": "disk"},
-					{"data": function(row) {
-						if (row['publish_ip'] != null) {
-							return row['publish_ip'];
-						}else {
-							return '';}
-						}
-					},
-					{"data": function(row) {
-						if (row['private_ip'] != null) {
-							return row['private_ip'];
-						}else {
-							return '';}
-						}
-					},
-					{"data": function(row) {
-						if (row['vip_ip'] != null) {
-							return row['vip_ip'];
-						}else {
-							return '';}
-						}
-					},
-					{"data": "host_ip"},
-					{"data": "owner"},
-					{"data": "env"},
-					{"data": function(row) {
-						if (row['status'] == 0){
-							return '使用';
-						} else if (row['status'] == 1) {
-							return '维护';
-						} else {
-							return '空闲';
-						}
-					}},
-					{"data": "comment"},
-				]
+		"ordering": false,
+		dom: 'Bfrtip',
+		buttons: [
+			'csv', 'excel'
+		],
+		"lengthMenu": [[10, 25, 50, -1], [10, 50, 100, 200]],			
+		"ajax": "/info/host_data/",
+		"columns": [	
+			{"data": "name"},
+			{"data": "idc"},
+			{"data": "business"},
+			{"data": function(row) {
+				if (row['service'] != null) {
+					return row['service'];
+				}else {
+					return '';}
+				}
+			},
+			{"data": "host_type"},
+			{"data": "system"},
+			{"data": "cpu"},
+			{"data": "memory"},
+			{"data": "disk"},
+			{"data": function(row) {
+				if (row['publish_ip'] != null) {
+					return row['publish_ip'];
+				}else {
+					return '';}
+				}
+			},
+			{"data": function(row) {
+				if (row['private_ip'] != null) {
+					return row['private_ip'];
+				}else {
+					return '';}
+				}
+			},
+			{"data": function(row) {
+				if (row['vip_ip'] != null) {
+					return row['vip_ip'];
+				}else {
+					return '';}
+				}
+			},
+			{"data": "host_ip"},
+			{"data": "owner"},
+			{"data": "env"},
+			{"data": function(row) {
+				if (row['status'] == 0){
+					return '使用';
+				} else if (row['status'] == 1) {
+					return '维护';
+				} else {
+					return '空闲';
+				}
+			}},
+			{"data": "comment"},
+		]
 	});
 
 	$('#host-select').cxSelect({
