@@ -1,9 +1,7 @@
 {% extends "layout.html" %}
 
 {% block link %}
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.bootstrap.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.responsive.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.tableTools.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='DataTables/media/css/dataTables.bootstrap.min.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block style %}
@@ -58,20 +56,6 @@
                 
                 <div class="ibox-content">
                     <div class="table-responsive">
-						<div class="row">
-							<div class="col-sm-12" align="right">
-								<form class="form-inline search-form" action="post">
-									<select class="form-control show-tick" name="field_id" data-style="btn-primary">
-										{% for field in fields %}
-										<option value="{{ field.id }}">{{ field.name }}</option>
-										{% endfor %}
-									</select>
-								  	<input name="search_data" type="text" class="form-control" value="">
-									<button type="button" class="btn btn-primary search-field" >搜索</button>
-								</form>
-								<br />
-							</div>
-						</div>
                         <table class="table table-striped table-bordered table-hover table-host" >
                             <thead>
                                 <tr>
@@ -99,62 +83,9 @@
                                     <th>操作</th>
                                 </tr>
                             </thead>
-                            <tbody id="data-body">
-								{% for host in hosts.items %}
-								<tr>
-									<td>
-										<label class="position-relative">
-											<input type="checkbox" class="ace" value="{{ host.id }}" />
-											<span class="lbl"></span>
-										</label>
-									</td>
-									<td>{{ host.to_json().idc }}</td>
-									<td>{{ host.to_json().host_type }}</td>
-									<td>{{ host.to_json().system }}</td>
-									<td>{{ host.cpu }}</td>
-									<td>{{ host.memory }}</td>
-									<td>{{ host.disk }}</td>
-									<td>{{ host.to_json().publish_ip | join('<br />') | safe }}</td>
-									<td>{{ host.to_json().private_ip | join('<br />') | safe }}</td>
-									<td>{{ host.to_json().vip_ip | join('<br />') | safe }}</td>
-									<td>{{ host.host_ip }}</td>
-									<td>{{ host.to_json().business }}</td>
-									<td>{{ host.to_json().env }}</td>
-									<td>{{ host.owner }}</td>
-									<td>{% if host.status == 0 %}使用{% elif host.status == 1 %}维护{% else %}空闲{% endif %}</td>
-									<td>{{ host.comment }}</td>
-									<td>
-										<button type="button" class="btn btn-primary btn-host-modify" data-target="#modify-host" data-id="{{ host.id }}" >修改</button>
-										<button type="button" class="btn btn-danger btn-host-delete" data-backdrop="false" data-id="{{ host.id }}" >删除</button>
-									</td>
-								</tr>
-								{% endfor %}
+                            <tbody>
                             </tbody>
                         </table>
-						<div class="panel-default row" id="data-page">
-							<div class="col-md-4" >
-								<p>Showing {{ start }} to {{ end }} of {{ hosts.total }} entries</p>
-							</div>
-							<div class="col-md-8" align="right">
-								<ul class="pagination">
-									<li><a href="/asset/host_list/?id=1">首页</a></li>
-									{% if hosts.has_prev %}
-										<li><a href="/asset/host_list/?id={{ hosts.prev_num }}">上一页</a></li>
-									{% else %}
-										<li class="disabled"><a href="#">上一页</a></li>
-									{% endif %}
-									{% for p in page_range_list %}
-										<li {% if hosts.page == p %} class="active" {% endif %}><a href="/asset/host_list/?id={{ p }}">{{ p }}</a></li>
-									{% endfor %}
-									{% if hosts.has_next %}
-										<li><a href="/asset/host_list/?id={{ hosts.next_num }}">下一页</a></li>
-									{% else %}
-										<li class="disabled"><a href="#">下一页</a></li>
-									{% endif %}
-									<li><a href="/asset/host_list/?id={{ hosts.pages }}">末页</a></li>
-								</ul>
-							</div>
-						</div>
                     </div>
                 </div>
             </div>
@@ -172,58 +103,56 @@
 
 
 {% block script %}
-<script src="{{ url_for('static', filename='js/plugins/dataTables/jquery.dataTables.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.bootstrap.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.responsive.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.tableTools.min.js') }}"></script>
+<script src="{{ url_for('static', filename='buttons/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ url_for('static', filename='DataTables/media/js/dataTables.bootstrap.min.js') }}"></script>
 {% endblock %}
 
 
 {% block js %}
 <script>
 $(document).ready(function() {
-	$('.search-field').on('click', function() {
-		var params = $('.search-form').serializeArray();
-		$.post('/asset/host_list/', params, function(data) {
-			if(data['hosts'] == '') {
-				$('#data-body').html('<td colSpan="16">No data available in table</td>');
-				$('#data-page').html('<div class="col-md-4" ><p>Showing 0 to 0 of 0 entries</p></div>');
-			}
-			else {
-				var host_list = [];
-				for (var i in data['hosts']){
-				var message = [];
-				message.push('<tr><td><label class="position-relative"><input type="checkbox" class="ace" value="' + data['hosts'][i]['id'] + '" /><span class="lbl"></span></label></td>');
-				message.push('<td>' + data['hosts'][i]['idc'] + '</td>');
-				message.push('<td>' + data['hosts'][i]['host_type'] + '</td>');
-				message.push('<td>' + data['hosts'][i]['system'] + '</td>');
-				message.push('<td>' + data['hosts'][i]['cpu'] + '</td>');
-				message.push('<td>' + data['hosts'][i]['memory'] + '</td>');
-				message.push('<td>' + data['hosts'][i]['disk'] + '</td>');
-				message.push('<td>' + data['hosts'][i]['publish_ip'].join("<br />") + '</td>');
-				message.push('<td>' + data['hosts'][i]['private_ip'].join("<br />") + '</td>');
-				message.push('<td>' + data['hosts'][i]['vip_ip'].join("<br />") + '</td>');
-				message.push('<td>' + data['hosts'][i]['host_ip'] + '</td>');
-				message.push('<td>' + data['hosts'][i]['business'] + '</td>');
-				message.push('<td>' + data['hosts'][i]['env'] + '</td>');
-				message.push('<td>' + data['hosts'][i]['owner'] + '</td>');
-				if (data['hosts'][i]['status'] == 0) {
-					message.push('<td>使用</td>');
-				} else if (data['hosts'][i]['status'] == 1) {
-					message.push('<td>维护</td>');
+	var table = $('.table-host').DataTable({
+		"ordering": false,
+		"lengthMenu": [[10, 25, 50], [10, 20, 50]],
+		"ajax": "/asset/host_list_data/",
+		"columns": [
+			{"render": function(data, type, row) {
+				return 	'<label class="position-relative">' +
+						'<input type="checkbox" class="ace" value="'+row['id']+'"/>' +
+						'<span class="lbl"></span>' +
+						'</label>';}
+			},
+			{"data": "idc"},
+			{"data": "host_type"},
+			{"data": "system"},
+			{"data": "cpu"},
+			{"data": "memory"},
+			{"data": "disk"},
+			{"data": "publish_ip"},
+			{"data": "private_ip"},
+			{"data": "vip_ip"},
+			{"data": "host_ip"},
+			{"data": "business"},
+			{"data": "env"},
+			{"data": "owner"},
+			{"data": function(row){
+				if (row['status'] == 0) {
+					return '使用';
+				} else if (row['status'] == 1) {
+					return '维护';
 				} else {
-					message.push('<td>空闲</td>');
+					return '空闲';
 				}
-				message.push('<td>' + data['hosts'][i]['comment'] + '</td>');
-				message.push('<td><button type="button" class="btn btn-primary btn-host-modify" data-target="#modify-host" data-id="' + data['hosts'][i]['id'] + '" >修改</button><button type="button" class="btn btn-danger btn-host-delete" data-id="' + data['hosts'][i]['id'] + '" >删除</button></td></tr>');
-				host_list.push(message.join(' '));
-				}
-				$('#data-body').html(host_list.join(' '));
-				$('#data-page').html('');
+			}},
+			{"data": "comment"},
+			{"data": function(row) {
+				var elements = [];
+				elements.push('<button type="button" class="btn btn-primary btn-host-modify" data-target="#modify-host" data-id="' + row['id'] + '" >修改</button>');
+				elements.push('<button type="button" class="btn btn-danger btn-host-delete" data-backdrop="false" data-id="' + + row['id'] + '" >删除</button>');
+				return elements.join(' ');}
 			}
-		}, 'json');
-	});
-
+		]		
+	});	
 
 	$(document).on('click', 'th input:checkbox', function() {
 		var that = this;
@@ -234,6 +163,26 @@ $(document).ready(function() {
 				});
 	});
 	
+	$('#host-auto-create').bootstrapValidator({
+		message: '值不能为空',
+		feedbackIcons: {
+			valid: 'glyphicon glyphicon-ok',
+			invalid: 'glyphicon glyphicon-remove',
+			validating: 'glyphicon glyphicon-refresh'
+		},
+		submitButtons: 'button[name="auto-add-host"]',
+		excluded: [':disabled'],
+		fields: {
+			auto_ip: {
+				validators: {
+					regexp: {
+						regexp: /^[0-9\.\s]+$/,
+						message: '仅能包含[0-9.]'
+                    }
+				}
+			}
+		}
+	});
 	
 	$('#host-create').bootstrapValidator({
 		message: '值不能为空',
@@ -242,7 +191,8 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons: 'button[type="button"]',
+		submitButtons: 'button[name="add-host"]',
+		excluded: [':disabled'],
 		fields: {
 			publish_ip: {
 				validators: {
@@ -281,27 +231,7 @@ $(document).ready(function() {
 			}
 		}   
 	});
-	
-	$('#host-auto-create').bootstrapValidator({
-		message: '值不能为空',
-		feedbackIcons: {
-			valid: 'glyphicon glyphicon-ok',
-			invalid: 'glyphicon glyphicon-remove',
-			validating: 'glyphicon glyphicon-refresh'
-		},
-		submitButtons: 'button[type="button"]',
-		fields: {
-			auto_ip: {
-				validators: {
-					regexp: {
-						regexp: /^[0-9\.\s]+$/,
-						message: '仅能包含[0-9.]'
-                    }
-				}
-			}
-		}
-	});
-		
+			
 	$('#host-modify').bootstrapValidator({
 		message: '值不能为空',
 		feedbackIcons: {
@@ -309,7 +239,8 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons: 'button[type="button"]',	
+		submitButtons: 'button[name="modify-host"]',	
+		excluded: [':disabled'],
 		fields: {
 			publish_ip: {
 				validators: {
@@ -356,11 +287,11 @@ $(document).ready(function() {
 	$('#create-auto-host').on('show.bs.modal', function (event) {
 		if(!event.relatedTarget){return;}
 		$("#auto_ip").val('');
-		$('#create-auto-host').bootstrapValidator('resetForm', true);
 		$('#business_id-auto-create .selectpicker').selectpicker('val', 0);
 		$('#business_id-auto-create .selectpicker').selectpicker('refresh');
 		$('#status-auto-create .selectpicker').selectpicker('val', -1);
 		$('#status-auto-create .selectpicker').selectpicker('refresh');
+		$('#create-auto-host').bootstrapValidator('resetForm', true);
 	});
 	
 	$('.btn-create-auto-submit').on('click', function() {
@@ -380,7 +311,8 @@ $(document).ready(function() {
 					},
 					function(isConfirm){
 						$('#create-auto-host').modal('hide');
-						window.location.href = '/asset/host_list/';
+						table.ajax.reload();
+						<!-- window.location.href = '/asset/host_list/'; -->
 					}
 				);
 			}
@@ -399,7 +331,8 @@ $(document).ready(function() {
 					function(isConfirm){
 						if(data['ret'] == 1) {
 							$('#create-auto-host').modal('hide');
-							window.location.href = '/asset/host_list/';
+							table.ajax.reload();
+							<!-- window.location.href = '/asset/host_list/'; -->
 						}
 					}
 				);
@@ -415,7 +348,6 @@ $(document).ready(function() {
 		if(!event.relatedTarget){return;}
 		$('input').val('');
 		$('textarea').val('');
-		// $('#host-create').bootstrapValidator('resetForm', true);
 		$('#idc_id-create .selectpicker').selectpicker('val', 0);
 		$('#idc_id-create .selectpicker').selectpicker('refresh');
 		$('#host_type_id-create .selectpicker').selectpicker('val', 0);
@@ -428,6 +360,7 @@ $(document).ready(function() {
 		$('#env_id-create .selectpicker').selectpicker('refresh');
 		$('#status-create .selectpicker').selectpicker('val', -1);
 		$('#status-create .selectpicker').selectpicker('refresh');
+		$('#host-create').bootstrapValidator('resetForm', true);
 	});
 	
 	$('.btn-create-submit').on('click', function() {
@@ -447,7 +380,8 @@ $(document).ready(function() {
 					},
 					function(isConfirm){
 						$('#create-host').modal('hide');
-						window.location.href = '/asset/host_list/';
+						table.ajax.reload();
+						<!-- window.location.href = '/asset/host_list/'; -->
 					}
 				);
 			}
@@ -475,7 +409,7 @@ $(document).ready(function() {
 	});	
 	
 	$('.table-host').on('click', '.btn-host-modify', function() {
-		// $('#host-modify').bootstrapValidator('resetForm', true);
+		$('#host-modify').bootstrapValidator('resetForm', true);
 		var id = $(this).data('id');
 		$.post('/asset/host_modify_list/', {'id': id}, function(data) {
 			for (var key in data) {
@@ -536,8 +470,8 @@ $(document).ready(function() {
 					},
 					function(isConfirm){
 						$('#modify-host').modal('hide');
-						// table.api().ajax.reload();
-						window.location.href = '/asset/host_list/';
+						table.ajax.reload();
+						<!-- window.location.href = '/asset/host_list/'; -->
 					}
 				);
 			}
@@ -589,8 +523,8 @@ $(document).ready(function() {
 									closeOnCancel: false
 								},
 								function(isConfirm){
-									// table.api().ajax.reload();
-									window.location.href = '/asset/host_list/';
+									table.ajax.reload();
+									<!-- window.location.href = '/asset/host_list/'; -->
 								}
 							);
 						}
@@ -668,8 +602,8 @@ $(document).ready(function() {
 										closeOnCancel: false
 									},
 									function(isConfirm){
-										// table.api().ajax.reload();
-										window.location.href = '/asset/host_list/';
+										table.ajax.reload();
+										<!-- window.location.href = '/asset/host_list/'; -->
 									}
 								);
 							}
@@ -686,8 +620,8 @@ $(document).ready(function() {
 										closeOnCancel: false
 									},
 									function(isConfirm){
-										// table.api().ajax.reload();
-										window.location.href = '/asset/host_list/';
+										table.ajax.reload();
+										<!-- window.location.href = '/asset/host_list/'; -->
 									}
 								);
 							}

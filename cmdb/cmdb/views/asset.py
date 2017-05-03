@@ -16,7 +16,7 @@ from ..utils.checkurl import checkurl
 from ..utils.changeip import validate_ip
 from ..utils.decorators import admin_required
 from ..utils.createuuid import createuuid
-from .raw_sql import BUSINESS_HOST_IDC_DATA, HOST_IDC_SERVICE_BUSINESS_DATA, SERVICE_BUSINESS_TOTAL_DATA
+from .raw_sql import BUSINESS_HOST_IDC_DATA, HOST_IDC_SERVICE_BUSINESS_DATA, SERVICE_BUSINESS_TOTAL_DATA, HOST_LIST_DATA, SERVICE_LIST_DATA
 
 asset = Blueprint('asset', __name__)
 
@@ -131,90 +131,28 @@ def idc_batch_delete_data():
     return jsonify({'error': error})
 
 
-@asset.route('/host_list/', methods=['GET', 'POST'])
+@asset.route('/host_list/')
 @login_required
 @admin_required
 def host_list():
-    fields = [{'id': 1, 'name': '所属机房'}, {'id': 2, 'name': '公网IP'}, {'id': 3, 'name': '内网IP'},
-              {'id': 4, 'name': '所属产品'}, {'id': 5, 'name': '负责人'}, {'id': 6, 'name': '主机状态'}]
-    if request.method == 'POST':
-        field_id = request.form.get('field_id', default=-1, type=int)
-        search_data = request.form.get('search_data', default='').strip()
-        if field_id not in list(range(1, 7)) or not search_data:
-            return jsonify({'hosts': ''})
-        elif field_id == 1:
-            idc = Idc.query.filter_by(name=search_data).first()
-            if idc and idc.hosts.count():
-                return jsonify({'hosts': [_host.to_json() for _host in idc.hosts]})
-        elif field_id == 2:
-            status, ret = validate_ip(search_data)
-            if status and ret == 2:
-                publish_ip = PublishIp.query.filter_by(ip=search_data).first()
-                if publish_ip and publish_ip.host:
-                    return jsonify({'hosts': [publish_ip.host.to_json()]})
-                vip_ip = VipIp.query.filter_by(ip=search_data).first()
-                if vip_ip:
-                    return jsonify({'hosts': [_host.to_json() for _host in vip_ip.hosts]})
-                hosts = Host.query.filter_by(host_ip=search_data).all()
-                if hosts:
-                    return jsonify({'hosts': [_host.to_json() for _host in hosts]})
-        elif field_id == 3:
-            status, ret = validate_ip(search_data)
-            if status and ret == 1:
-                private_ip = PrivateIp.query.filter_by(ip=search_data).first()
-                if private_ip and private_ip.host:
-                    return jsonify({'hosts': [private_ip.host.to_json()]})
-                vip_ip = VipIp.query.filter_by(ip=search_data).first()
-                if vip_ip:
-                    return jsonify({'hosts': [_host.to_json() for _host in vip_ip.hosts]})
-                hosts = Host.query.filter_by(host_ip=search_data).all()
-                if hosts:
-                    return jsonify({'hosts': [_host.to_json() for _host in hosts]})
-        elif field_id == 4:
-            hosts = []
-            businesses = Business.query.filter(Business.name.ilike('%{}%'.format(search_data)))
-            if businesses.count():
-                for business in businesses:
-                    if business.hosts.count():
-                        hosts.extend([_host.to_json() for _host in business.hosts])
-                return jsonify({'hosts': hosts})
-        elif field_id == 5:
-            hosts = Host.query.filter(Host.owner.ilike('%{}%'.format(search_data)))
-            if hosts.count():
-                return jsonify({'hosts': [_host.to_json() for _host in hosts]})
-        elif field_id == 6:
-            status_dict = {'使用': 0, '维护': 1, '空闲': 2}
-            status_id = status_dict.get(search_data, -1)
-            hosts = Host.query.filter_by(status=status_id).all()
-            if hosts:
-                return jsonify({'hosts': [_host.to_json() for _host in hosts]})
-        return jsonify({'hosts': ''})
-    page_id = request.args.get('id', default=1, type=int)
-    hosts = Host.query.order_by(Host.change_time.desc()).paginate(page_id, 10, False)
-    page_per_echo = 8
-    page_range_list = []
-    if hosts.pages - page_id >= page_per_echo // 2:
-        start_index = max(page_id - page_per_echo // 2, 1)
-    else:
-        start_index = hosts.pages - page_per_echo + 1
-    end_index = max(page_id + page_per_echo // 2, page_per_echo + 1)
-    for number in range(start_index, end_index):
-        if 0 < number <= hosts.pages:
-            page_range_list.append(number)
     idcs = query_db_function(Idc)
     host_types = query_db_function(HostType)
     systems = query_db_function(System)
     envs = query_db_function(Env)
     businesses = Business.choice_business_list(0, 3)
-    if hosts.items:
-        start = (hosts.page - 1) * 10 + 1
-        end = hosts.page * 10 if page_id != hosts.pages else hosts.total
-    else:
-        start = 0
-        end = 0
     return render_template('asset/host_list.html', idcs=idcs, host_types=host_types,
-                           start=start, end=end, systems=systems, envs=envs, businesses=businesses,
-                           hosts=hosts, page_range_list=page_range_list, fields=fields)
+                            systems=systems, envs=envs, businesses=businesses)
+
+
+@asset.route('/host_list_data/')
+@login_required
+@admin_required
+def host_list_data():
+    _column = ['id', 'idc', 'host_type', 'system', 'cpu', 'memory', 'disk', 'publish_ip', 'private_ip', 'vip_ip',
+               'host_ip', 'business', 'env', 'owner', 'status', 'comment']
+    _results = db.session.execute(HOST_LIST_DATA).fetchall()
+    data = [dict(zip(_column, _result)) for _result in _results]
+    return jsonify({'data': data})
 
 
 @asset.route('/host_auto_create/', methods=['POST'])
@@ -663,81 +601,27 @@ def business_tree_delete():
     return jsonify({'error': error})
         
 
-@asset.route('/app_list/', methods=['GET', 'POST'])
+@asset.route('/app_list/')
 @login_required
 @admin_required
 def app_list():
-    fields = [{'id': 1, 'name': '应用名'}, {'id': 2, 'name': '内网IP'},
-              {'id': 3, 'name': '外网IP'}, {'id': 4, 'name': '所属产品'},
-              {'id': 5, 'name': '所属域名'}, {'id': 6, 'name': '负责人'}]
-    if request.method == 'POST':
-        field_id = request.form.get('field_id', default=-1, type=int)
-        search_result = request.form.get('search_result', default='').strip()
-        if field_id not in list(range(1, 7)) or not search_result:
-            return jsonify({'services': ''})
-        if field_id == 1:
-            services = Service.query.filter(Service.name.contains(search_result)).all()
-            if services:
-                return jsonify({'services': [service.to_json() for service in services]})
-        if field_id == 2:
-            private_ips = PrivateIp.query.filter_by(ip=search_result).all()
-            if private_ips:
-                _service_private_ip_list = []
-                for _private_ip in private_ips:
-                    _service_private_ip_list.extend([service.to_json() for service in _private_ip.services])
-                return jsonify({'services': _service_private_ip_list})
-        if field_id == 3:
-            publish_ips = PublishIp.query.filter_by(ip=search_result).all()
-            if publish_ips:
-                _service_publish_ip_list = []
-                for _publish_ip in publish_ips:
-                    _service_publish_ip_list.extend([service.to_json() for service in _publish_ip.services])
-                return jsonify({'services': _service_publish_ip_list})
-        if field_id == 4:
-            businesses = Business.query.filter(Business.name.contains(search_result)).all()
-            if businesses:
-                _service_business_list = []
-                for business in businesses:
-                    _service_business_list.extend([service.to_json() for service in business.services])
-                return jsonify({'services': _service_business_list})
-        if field_id == 5:
-            domains = Domain.query.filter(Domain.name.contains(search_result)).all()
-            if domains:
-                _service_domain_list = []
-                for domain in domains:
-                    _service_domain_list.extend([service.to_json() for service in domain.services])
-                return jsonify({'services': _service_domain_list})
-        if field_id == 6:
-            services = Service.query.filter_by(contact=search_result).all()
-            if services:
-                return jsonify({'services': [service.to_json() for service in services]})
-        return jsonify({'services': ''})
-    page_id = request.args.get('id', default=1, type=int)
-    services = Service.query.order_by(Service.change_time.desc()).paginate(page_id, 10, False)
-    page_per_echo = 8
-    page_range_list = []
-    if services.pages - page_id >= page_per_echo // 2:
-        start_index = max(page_id - page_per_echo // 2, 1)
-    else:
-        start_index = services.pages - page_per_echo + 1
-    end_index = max(page_id + page_per_echo // 2, page_per_echo + 1)
-    for number in range(start_index, end_index):
-        if 0 < number <= services.pages:
-            page_range_list.append(number)
-    if services.items:
-        start = (services.page - 1) * 10 + 1
-        end = services.page * 10 if page_id != services.pages else services.total
-    else:
-        start = 0
-        end = 0
     hosts_private = list(PrivateIp.query.values(PrivateIp.id, PrivateIp.ip))
     hosts_publish = list(PublishIp.query.values(PublishIp.id, PublishIp.ip))
     depends = list(Depend.query.values(Depend.id, Depend.name))
     domains = list(Domain.query.values(Domain.id, Domain.name))
     businesses = Business.choice_business_list(0, 3)
     return render_template('asset/app_list.html', hosts_private=hosts_private, hosts_publish=hosts_publish,
-                           depends=depends, domains=domains, businesses=businesses, start=start,
-                           end=end, services=services, page_range_list=page_range_list, fields=fields)
+                           depends=depends, domains=domains, businesses=businesses)
+
+
+@asset.route('/app_list_data/')
+@login_required
+@admin_required
+def app_list_data():
+    _column = ['id', 'name', 'name_alias', 'port', 'publish_ip', 'private_ip', 'depend', 'business', 'user', 'owner', 'db_instance', 'domain']
+    _results = db.session.execute(SERVICE_LIST_DATA).fetchall()
+    data = [dict(zip(_column, _result)) for _result in _results]
+    return jsonify({'data': data})
 
 
 @asset.route('/app_create/', methods=['POST'])

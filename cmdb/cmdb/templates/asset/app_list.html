@@ -1,9 +1,7 @@
 {% extends "layout.html" %}
 
 {% block link %}
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.bootstrap.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.responsive.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.tableTools.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='DataTables/media/css/dataTables.bootstrap.min.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='multiselect2side/css/jquery.multiselect2side.css') }}" rel="stylesheet">
 {% endblock %}
 
@@ -59,20 +57,6 @@
                 
                 <div class="ibox-content">
                     <div class="table-responsive">
-                        <div class="row">
-							<div class="col-sm-12" align="right">
-								<form class="form-inline search-form" action="post">
-									<select class="form-control show-tick" name="field_id" data-style="btn-primary">
-										{% for field in fields %}
-										<option value="{{ field.id }}">{{ field.name }}</option>
-										{% endfor %}
-									</select>
-								  	<input id="search_result" name="search_result" type="text" class="form-control" value="">
-									<button type="button" class="btn btn-primary search-field" >搜索</button>
-								</form>
-								<br />
-							</div>
-						</div>
                         <table class="table table-striped table-bordered table-hover table-app" >
                             <thead>
                                 <tr>
@@ -96,58 +80,9 @@
                                     <th>操作</th>
                                 </tr>
                             </thead>
-                            <tbody id="data-body">
-								{% for service in services.items %}
-								<tr>
-									<td>
-										<label class="position-relative">
-											<input type="checkbox" class="ace" value="{{ service.id }}" />
-											<span class="lbl"></span>
-										</label>
-									</td>
-									<td>{{ service.name }}</td>
-									<td>{{ service.name_alias }}</td>
-									<td>{{ service.port }}</td>
-                                    <td>{{ service.to_json().publish_ip | join('<br />') |safe }}</td>
-									<td>{{ service.to_json().private_ip | join('<br />') | safe }}</td>
-									<td>{{ service.to_json().depend | join('<br />') | safe }}</td>
-                                    <td>{{ service.to_json().business }}</td>
-									<td>{{ service.to_json().user }}</td>
-									<td>{{ service.contact }}</td>
-									<td>{{ service.db_instance }}</td>
-									<td>{{ service.to_json().domain | join('<br />') | safe }}</td>
-									<td>
-                                        <button type="button" class="btn btn-primary btn-app-modify" data-target="#modify-app" data-id="{{ service.id }}" >修改</button>
-				                        <button type="button" class="btn btn-danger btn-app-delete" data-backdrop="false" data-id="{{ service.id }}" >删除</button>
-									</td>
-								</tr>
-								{% endfor %}
+                            <tbody>
                             </tbody>
                         </table>
-                        <div class="panel-default row" id="data-page">
-							<div class="col-md-4" >
-								<p>Showing {{ start }} to {{ end }} of {{ services.total }} entries</p>
-							</div>
-							<div class="col-md-8" align="right">
-								<ul class="pagination">
-									<li><a href="/asset/app_list/?id=1">首页</a></li>
-									{% if services.has_prev %}
-										<li><a href="/asset/app_list/?id={{ services.prev_num }}">上一页</a></li>
-									{% else %}
-										<li class="disabled"><a href="#">上一页</a></li>
-									{% endif %}
-									{% for p in page_range_list %}
-										<li {% if services.page == p %} class="active" {% endif %}><a href="/asset/app_list/?id={{ p }}">{{ p }}</a></li>
-									{% endfor %}
-									{% if services.has_next %}
-										<li><a href="/asset/app_list/?id={{ services.next_num }}">下一页</a></li>
-									{% else %}
-										<li class="disabled"><a href="#">上一页</a></li>
-									{% endif %}
-									<li><a href="/asset/app_list/?id={{ services.pages }}">末页</a></li>
-								</ul>
-							</div>
-						</div>
                     </div>
                 </div>
             </div>
@@ -164,10 +99,8 @@
 
 
 {% block script %}
-<script src="{{ url_for('static', filename='js/plugins/dataTables/jquery.dataTables.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.bootstrap.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.responsive.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.tableTools.min.js') }}"></script>
+<script src="{{ url_for('static', filename='buttons/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ url_for('static', filename='DataTables/media/js/dataTables.bootstrap.min.js') }}"></script>
 <script src="{{ url_for('static', filename='multiselect2side/jquery.multiselect2side.js') }}"></script>
 <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
 {% endblock %}
@@ -176,37 +109,36 @@
 {% block js %}
 <script>
 $(document).ready(function() {
-    $('.search-field').on('click', function() {
-		var params = $('.search-form').serializeArray();
-		$.post('/asset/app_list/', params, function(data) {
-			if(data['services'] == '') {
-				$('#data-body').html('<td colSpan="16">No data available in table</td>');
-				$('#data-page').html('<div class="col-md-4" ><p>Showing 0 to 0 of 0 entries</p></div>');
+	var table = $('.table-app').DataTable({
+		"ordering": false,
+		"lengthMenu": [[10, 25, 50], [10, 20, 50]],
+		"ajax": "/asset/app_list_data/",
+		"columns": [
+			{"render": function(data, type, row) {
+				return 	'<label class="position-relative">' +
+						'<input type="checkbox" class="ace" value="'+row['id']+'"/>' +
+						'<span class="lbl"></span>' +
+						'</label>';}
+			},
+			{"data": "name"},
+			{"data": "name_alias"},
+			{"data": "port"},
+			{"data": "publish_ip"},
+			{"data": "private_ip"},
+			{"data": "depend"},
+			{"data": "business"},
+			{"data": "user"},
+			{"data": "owner"},
+			{"data": "db_instance"},
+			{"data": "domain"},
+			{"data": function(row) {
+				var elements = [];
+				elements.push('<button type="button" class="btn btn-primary btn-app-modify" data-target="#modify-app" data-id="' + row['id'] + '" >修改</button>');
+				elements.push('<button type="button" class="btn btn-danger btn-app-delete" data-backdrop="false" data-id="' + + row['id'] + '" >删除</button>');
+				return elements.join(' ');}
 			}
-			else {
-				var service_list = [];
-			    for (var i in data['services']) {
-				    var message = [];
-				    message.push('<tr><td><label class="position-relative"><input type="checkbox" class="ace" value="' + data['services'][i]['id'] + '" /><span class="lbl"></span></label></td>');
-				    message.push('<td>' + data['services'][i]['name'] + '</td>');
-				    message.push('<td>' + data['services'][i]['name_alias'] + '</td>');
-				    message.push('<td>' + data['services'][i]['port'] + '</td>');
-				    message.push('<td>' + data['services'][i]['publish_ip'].join("<br />") + '</td>');
-				    message.push('<td>' + data['services'][i]['private_ip'].join("<br />") + '</td>');
-				    message.push('<td>' + data['services'][i]['depend'].join("<br />") + '</td>');
-				    message.push('<td>' + data['services'][i]['business'] + '</td>');
-				    message.push('<td>' + data['services'][i]['user'] + '</td>');
-				    message.push('<td>' + data['services'][i]['contact'].join("\n") + '</td>');
-				    message.push('<td>' + data['services'][i]['db_instance'].join("\n") + '</td>');
-					message.push('<td>' + data['services'][i]['domain'].join("<br />") + '</td>');
-				    message.push('<td><button type="button" class="btn btn-primary btn-app-modify" data-target="#modify-app" data-id="' + data['services'][i]['id'] + '" >修改</button><button type="button" class="btn btn-danger btn-app-delete" data-id="' + data['services'][i]['id'] + '" >删除</button></td></tr>');
-				    service_list.push(message.join(' '));
-				}
-				$('#data-body').html(service_list.join(' '));
-				$('#data-page').html('');
-			}
-		}, 'json');
-	});
+		]		
+	});	
 
 	$(document).on('click', 'th input:checkbox', function() {
 		var that = this;
@@ -224,7 +156,8 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons: 'button[type="button"]',
+		submitButtons: 'button[name="add-app"]',
+		excluded: [':disabled'],
 		fields: {
 			name: {
 				validators: {
@@ -318,7 +251,6 @@ $(document).ready(function() {
 		
 		$('input').val('');
 		$('textarea').val('');
-		$('#app-create').bootstrapValidator('resetForm', true);
 		$('#business_id-create .selectpicker').selectpicker('val', 0);
 		$('#business_id-create .selectpicker').selectpicker('refresh');
 		$('#user_id-create .selectpicker').selectpicker('val', 0);
@@ -327,6 +259,7 @@ $(document).ready(function() {
 		$('#priority_id-create .selectpicker').selectpicker('refresh');
 		$('#status-create .selectpicker').selectpicker('val', -1);
 		$('#status-create .selectpicker').selectpicker('refresh');
+		$('#app-create').bootstrapValidator('resetForm', true);
 	});
 	
 	$('.btn-create-submit').on('click', function() {
@@ -381,8 +314,8 @@ $(document).ready(function() {
 					},
 					function(isConfirm){
 						$('#create-app').modal('hide');
-						// table.api().ajax.reload();
-						window.location.href = '/asset/app_list/';
+						table.ajax.reload();
+						<!-- window.location.href = '/asset/app_list/'; -->
 					}
 				);
 			}
@@ -412,7 +345,8 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons: 'button[type="button"]',
+		submitButtons: 'button[name="modify-app"]',
+		excluded: [':disabled'],
 		fields: {
 			name: {
 				validators: {
@@ -637,8 +571,8 @@ $(document).ready(function() {
 					},
 					function(isConfirm){
 						$('#modify-app').modal('hide');
-						// table.api().ajax.reload();
-						window.location.href = '/asset/app_list/';
+						table.ajax.reload();
+						<!-- window.location.href = '/asset/app_list/'; -->
 					}
 				);
 			}
@@ -691,8 +625,9 @@ $(document).ready(function() {
 									closeOnCancel: false
 								},
 								function(isConfirm){
+									table.ajax.reload();
 									// table.api().ajax.reload();
-									window.location.href = '/asset/app_list/';
+									<!-- window.location.href = '/asset/app_list/'; -->
 								}
 							);
 						}
@@ -769,8 +704,9 @@ $(document).ready(function() {
 										closeOnCancel: false
 									},
 									function(isConfirm){
+										table.ajax.reload();
 										// table.api().ajax.reload();
-										window.location.href = '/asset/app_list/';
+										<!-- window.location.href = '/asset/app_list/'; -->
 									}
 								);
 							}
@@ -787,7 +723,8 @@ $(document).ready(function() {
 										closeOnCancel: false
 									},
 									function(isConfirm){
-										window.location.href = '/asset/app_list/';
+										table.ajax.reload();
+										<!-- window.location.href = '/asset/app_list/'; -->
 									}
 								);
 							}

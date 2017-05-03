@@ -1,7 +1,7 @@
 {% extends "auth/base.html" %}
 
 {% block link %}
-<link href="{{ url_for('static', filename='bootstrapvalidator-0.4.5/dist/css/bootstrapValidator.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='bootstrapvalidator/dist/css/bootstrapValidator.min.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -49,7 +49,7 @@
 {% endblock %}
 		
 {% block script %}
-<script src="{{ url_for('static', filename='bootstrapvalidator-0.4.5/dist/js/bootstrapValidator.min.js') }}"></script>
+<script src="{{ url_for('static', filename='bootstrapvalidator/dist/js/bootstrapValidator.min.js') }}"></script>
 {% endblock %}
 
 {% block js %}
