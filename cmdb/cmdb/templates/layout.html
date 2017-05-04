@@ -12,9 +12,10 @@
     <link href="{{ url_for('static', filename='css/animate.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css') }}" rel="stylesheet">
-	<link href="{{ url_for('static', filename='bootstrap-select/dist/css/bootstrap-select.min.css') }}" rel="stylesheet">
 	<link href="{{ url_for('static', filename='css/plugins/sweetalert/sweetalert.css') }}" rel="stylesheet">
+	<link href="{{ url_for('static', filename='bootstrap-select/dist/css/bootstrap-select.min.css') }}" rel="stylesheet">
 	<link href="{{ url_for('static', filename='bootstrapvalidator/dist/css/bootstrapValidator.min.css') }}" rel="stylesheet">
+	<link href="{{ url_for('static', filename='DataTables/media/css/dataTables.bootstrap.min.css') }}" rel="stylesheet">
 	{% block link %}{% endblock %}
     <style>
         {% block style %}{% endblock %}
@@ -336,7 +337,7 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/jquery-2.1.1.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/jquery-ui-1.12.1/jquery-ui.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/plugins/metisMenu/jquery.metisMenu.js') }}"></script>
     <script src="{{ url_for('static', filename='js/plugins/slimscroll/jquery.slimscroll.min.js') }}"></script>
@@ -348,6 +349,8 @@
 	<script src="{{ url_for('static', filename='js/plugins/sweetalert/sweetalert.min.js') }}"></script>	
 	<script src="{{ url_for('static', filename='bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
 	<script src="{{ url_for('static', filename='bootstrapvalidator/dist/js/bootstrapValidator.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='DataTables/media/js/jquery.dataTables.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='DataTables/media/js/dataTables.bootstrap.min.js') }}"></script>
 	<script>
 		var str = document.location.pathname.split("/")[1];
 		var two = document.location.pathname.split("/")[2];

@@ -166,9 +166,9 @@ def host_auto_create():
     if not _ip_set:
         error_list.append('主机IP为空')
     if not Business.query.get(business_id):
-        error_list.append('所属产品为空')
+        error_list.append('请选择所属产品')
     if status == -1:
-        error_list.append('主机状态为空')
+        error_list.append('请选择主机状态')
     if error_list:
         return jsonify({'error': '\n'.join(error_list), 'ret': 0})
     else:
@@ -605,12 +605,12 @@ def business_tree_delete():
 @login_required
 @admin_required
 def app_list():
-    hosts_private = list(PrivateIp.query.values(PrivateIp.id, PrivateIp.ip))
-    hosts_publish = list(PublishIp.query.values(PublishIp.id, PublishIp.ip))
+    private_ips = list(PrivateIp.query.values(PrivateIp.id, PrivateIp.ip))
+    publish_ips = list(PublishIp.query.values(PublishIp.id, PublishIp.ip))
     depends = list(Depend.query.values(Depend.id, Depend.name))
     domains = list(Domain.query.values(Domain.id, Domain.name))
     businesses = Business.choice_business_list(0, 3)
-    return render_template('asset/app_list.html', hosts_private=hosts_private, hosts_publish=hosts_publish,
+    return render_template('asset/app_list.html', private_ips=private_ips, publish_ips=publish_ips,
                            depends=depends, domains=domains, businesses=businesses)
 
 
@@ -630,26 +630,47 @@ def app_list_data():
 def app_create():
     data = json.loads(request.form.get('data'))
     _form = {}
+    _private_ip_set = set()
+    _publish_ip_set = set()
+    _depend_set = set()
+    _domain_set = set()
     for _item in data['params']:
-        if not (_item['name'].startswith('private_ip') or _item['name'].startswith('depend') or
-                _item['name'].startswith('domain') or _item['name'].startswith('publish_ip')):
+        if _item['name'].startswith('private_ip'):
+            _private_ip_set.add(_item['value'])
+        elif _item['name'].startswith('publish_ip'):
+            _publish_ip_set.add(_item['value'])
+        elif _item['name'].startswith('depend'):
+            _depend_set.add(_item['value'])
+        elif _item['name'].startswith('domain'):
+            _domain_set.add(_item['value'])
+        else:
             _form[_item['name']] = _item['value']
     ret, error = Service.validate_service(_form, False)
     if ret:
         _hosts = set()
         _service = Service(**_form)
-        if data['publish_ip']:
-            for _id in data['publish_ip']:
+        if _publish_ip_set:
+            for _id in _publish_ip_set:
                 _publish_ip = PublishIp.query.get(int(_id))
-                _service.publish_ips.append(_publish_ip)
-                _hosts.add(_publish_ip.host)
-        if data['private_ip']:
-            for _id in data['private_ip']:
+                if _publish_ip:
+                    _service.publish_ips.append(_publish_ip)
+                    _hosts.add(_publish_ip.host)
+        if _private_ip_set:
+            for _id in _private_ip_set:
                 _private_ip = PrivateIp.query.get(int(_id))
-                _service.private_ips.append(_private_ip)
-                _hosts.add(_private_ip.host)
-        _service.domains.extend([Domain.query.get(int(_id)) for _id in data['domain']])
-        _service.depends.extend([Depend.query.get(int(_id)) for _id in data['depend']])
+                if _private_ip:
+                    _service.private_ips.append(_private_ip)
+                    _hosts.add(_private_ip.host)
+        if _depend_set:
+            for _id in _depend_set:
+                _depend = Depend.query.get(int(_id))
+                if _depend:
+                    _service.depends.append(_depend)
+        if _domain_set:
+            for _id in _domain_set:
+                _domain = Domain.query.get(int(_id))
+                if _domain:
+                    _service.domains.append(_domain)
         _service.hosts.extend(_hosts)
         db.session.add(_service)
         db.session.commit()
@@ -671,9 +692,20 @@ def app_modify_list():
 def app_modify():
     data = json.loads(request.form.get('data'))
     _form = {}
+    _private_ip_set = set()
+    _publish_ip_set = set()
+    _depend_set = set()
+    _domain_set = set()
     for _item in data['params']:
-        if not (_item['name'].startswith('private_ip') or _item['name'].startswith('depend') or
-                _item['name'].startswith('domain') or _item['name'].startswith('publish_ip')):
+        if _item['name'].startswith('private_ip'):
+            _private_ip_set.add(_item['value'])
+        elif _item['name'].startswith('publish_ip'):
+            _publish_ip_set.add(_item['value'])
+        elif _item['name'].startswith('depend'):
+            _depend_set.add(_item['value'])
+        elif _item['name'].startswith('domain'):
+            _domain_set.add(_item['value'])
+        else:
             _form[_item['name']] = _item['value']
     ret, error = Service.validate_service(_form)
     if ret:
@@ -695,16 +727,28 @@ def app_modify():
         if _service.hosts.count():
             for _host in _service.hosts.all():
                 _host.services.remove(_service)
-        for _id in data['publish_ip']:
-            _publish_ip = PublishIp.query.get(int(_id))
-            _service.publish_ips.append(_publish_ip)
-            _hosts.add(_publish_ip.host)
-        for _id in data['private_ip']:
-            _private_ip = PrivateIp.query.get(int(_id))
-            _service.private_ips.append(_private_ip)
-            _hosts.add(_private_ip.host)
-        _service.domains.extend([Domain.query.get(int(_id)) for _id in data['domain']])
-        _service.depends.extend([Depend.query.get(int(_id)) for _id in data['depend']])
+        if _publish_ip_set:
+            for _id in _publish_ip_set:
+                _publish_ip = PublishIp.query.get(int(_id))
+                if _publish_ip:
+                    _service.publish_ips.append(_publish_ip)
+                    _hosts.add(_publish_ip.host)
+        if _private_ip_set:
+            for _id in _private_ip_set:
+                _private_ip = PrivateIp.query.get(int(_id))
+                if _private_ip:
+                    _service.private_ips.append(_private_ip)
+                    _hosts.add(_private_ip.host)
+        if _depend_set:
+            for _id in _depend_set:
+                _depend = Depend.query.get(int(_id))
+                if _depend:
+                    _service.depends.append(_depend)
+        if _domain_set:
+            for _id in _domain_set:
+                _domain = Domain.query.get(int(_id))
+                if _domain:
+                    _service.domains.append(_domain)
         _service.hosts.extend(_hosts)
         db.session.commit()
         error = ''
@@ -1125,3 +1169,5 @@ def check_delete_data():
     else:
         error = '删除记录不存在'
     return jsonify({'error': error})
+
+

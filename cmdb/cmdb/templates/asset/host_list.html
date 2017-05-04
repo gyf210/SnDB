@@ -1,7 +1,6 @@
 {% extends "layout.html" %}
 
 {% block link %}
-<link href="{{ url_for('static', filename='DataTables/media/css/dataTables.bootstrap.min.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block style %}
@@ -103,8 +102,6 @@
 
 
 {% block script %}
-<script src="{{ url_for('static', filename='buttons/js/jquery.dataTables.min.js') }}"></script>
-<script src="{{ url_for('static', filename='DataTables/media/js/dataTables.bootstrap.min.js') }}"></script>
 {% endblock %}
 
 
@@ -112,10 +109,10 @@
 <script>
 $(document).ready(function() {
 	var table = $('.table-host').DataTable({
-		"ordering": false,
-		"lengthMenu": [[10, 25, 50], [10, 20, 50]],
-		"ajax": "/asset/host_list_data/",
-		"columns": [
+		ordering: false,
+		lengthMenu: [[10, 25, 50], [10, 20, 50]],
+		ajax: "/asset/host_list_data/",
+		columns: [
 			{"render": function(data, type, row) {
 				return 	'<label class="position-relative">' +
 						'<input type="checkbox" class="ace" value="'+row['id']+'"/>' +
@@ -170,7 +167,7 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons: 'button[name="auto-add-host"]',
+		<!-- submitButtons: 'button[name="auto-add-host"]', -->
 		excluded: [':disabled'],
 		fields: {
 			auto_ip: {
@@ -191,7 +188,7 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons: 'button[name="add-host"]',
+		<!-- submitButtons: 'button[name="add-host"]', -->
 		excluded: [':disabled'],
 		fields: {
 			publish_ip: {
@@ -239,7 +236,7 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons: 'button[name="modify-host"]',	
+		<!-- submitButtons: 'button[name="modify-host"]',	 -->
 		excluded: [':disabled'],
 		fields: {
 			publish_ip: {

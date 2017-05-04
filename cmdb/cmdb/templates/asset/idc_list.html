@@ -1,9 +1,6 @@
 {% extends "layout.html" %}
 
 {% block link %}
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.bootstrap.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.responsive.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.tableTools.min.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block style %}
@@ -91,20 +88,17 @@
 
 
 {% block script %}
-<script src="{{ url_for('static', filename='js/plugins/dataTables/jquery.dataTables.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.bootstrap.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.responsive.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.tableTools.min.js') }}"></script>
 {% endblock %}
 
 
 {% block js %}
 <script>
 $(document).ready(function() {
-	var table = $('.table-idc').dataTable({
-			"ordering": false,
-			"ajax": "/asset/idc_list_data/",
-			"columns": [
+	var table = $('.table-idc').DataTable({
+			ordering: false,
+			lengthMenu: [[10, 25, 50], [10, 20, 50]],
+			ajax: "/asset/idc_list_data/",
+			columns: [
 			{"render": function(data, type, row) {
 				return 	'<label class="position-relative">' +
 						'<input type="checkbox" class="ace" value="'+row['id']+'"/>' +
@@ -142,7 +136,8 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons:'[type="button"]',
+		<!-- submitButtons:'[name="add-idc"]', -->
+		excluded: [':disabled'],
 		fields: {
 			name: {
 				validators: {
@@ -162,9 +157,9 @@ $(document).ready(function() {
 		if(!event.relatedTarget){return;}
 		$('input').val('');
 		$('textarea').val('');
-		$('#idc-create').bootstrapValidator('resetForm', true);
 		$('#operator-create .selectpicker').selectpicker('val', -1);
-		$('#operator-create .selectpicker').selectpicker('refresh');		
+		$('#operator-create .selectpicker').selectpicker('refresh');
+		$('#idc-create').bootstrapValidator('resetForm', true);		
 	});
 	
 	$('.btn-create-submit').on('click', function(event) {
@@ -184,8 +179,8 @@ $(document).ready(function() {
 					},
 					function(isConfirm){
 						$('#create-idc').modal('hide');
-						// table.api().ajax.reload();
-						window.location.href = '/asset/idc_list/';
+						table.ajax.reload();
+						<!-- window.location.href = '/asset/idc_list/'; -->
 					}
 				);
 			}
@@ -215,7 +210,8 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons:'[type="button"]',
+		<!-- submitButtons:'[name="modify-idc"]', -->
+		excluded: [':disabled'],
 		fields: {
 			name: {
 				validators: {
@@ -266,8 +262,8 @@ $(document).ready(function() {
 					},
 					function(isConfirm){
 						$('#modify-idc').modal('hide');
-						// table.api().ajax.reload();
-						window.location.href = '/asset/idc_list/';
+						table.ajax.reload();
+						<!-- window.location.href = '/asset/idc_list/'; -->
 					}
 				);
 			}
@@ -319,7 +315,8 @@ $(document).ready(function() {
 									closeOnCancel: false
 								},
 								function(isConfirm){
-									window.location.href = '/asset/idc_list/';
+									table.ajax.reload();
+									<!-- window.location.href = '/asset/idc_list/'; -->
 								}
 							);
 						}
@@ -396,7 +393,8 @@ $(document).ready(function() {
 										closeOnCancel: false
 									},
 									function(isConfirm){
-                                        window.location.href = '/asset/idc_list/';
+										table.ajax.reload();
+                                        <!-- window.location.href = '/asset/idc_list/'; -->
 									}
 								);
 							}
@@ -413,7 +411,8 @@ $(document).ready(function() {
 										closeOnCancel: false
 									},
 									function(isConfirm){
-										window.location.href = '/asset/idc_list/';
+										table.ajax.reload();
+										<!-- window.location.href = '/asset/idc_list/'; -->
 									}
 								);
 							}

@@ -280,6 +280,12 @@ class Idc(db.Model):
         return dict(id=self.id, name=self.name, operator=self.operator, comment=self.comment)
 
     @staticmethod
+    def validate_operator(id):
+        """['电信','联通','BGP']"""
+        _id_list = [0, 1, 2]
+        return True if id in _id_list else False
+
+    @staticmethod
     def validate_idc(form, modify_flag=True):
         error = []
         if modify_flag:
@@ -300,6 +306,8 @@ class Idc(db.Model):
                     error.append('机房名称已使用')
         if form.get('operator', '').strip() == '':
             error.append('运营商为空')
+        elif not Idc.validate_operator(int(form.get('operator', ''))):
+            error.append('请选择运营商')
         if error:
             return False, '\n'.join(error)
         return True, ''
@@ -657,10 +665,16 @@ class Host(db.Model):
                     error.append('主机ID不存在')
         if form.get('idc_id', '').strip() == '':
             error.append('所属机房为空')
+        elif not Idc.query.get(int(form.get('idc_id'))):
+            error.append('请选择机房')
         if form.get('host_type_id', '').strip() == '':
             error.append('主机类型为空')
+        elif not HostType.query.get(int(form.get('host_type_id'))):
+            error.append('请选择主机类型')
         if form.get('system_id', '').strip() == '':
             error.append('操作系统为空')
+        elif not System.query.get(int(form.get('system_id'))):
+            error.append('请选择操作系统')
         if form.get('cpu', '').strip() == '':
             error.append('CPU为空')
         if form.get('memory', '').strip() == '':
@@ -672,10 +686,16 @@ class Host(db.Model):
             error.append(_error)
         if form.get('business_id', '').strip() == '':
             error.append('所属产品为空')
+        elif not Business.query.get(int(form.get('business_id'))):
+            error.append('请选择所属产品')
         if form.get('env_id', '').strip() == '':
             error.append('所属环境为空')
+        elif not Env.query.get(int(form.get('env_id'))):
+            error.append('请选择所属环境')
         if form.get('status', '').strip() == '':
             error.append('主机状态为空')
+        elif int(form.get('status')) not in [0, 1, 2]:
+            error.append('请选择主机状态')
         if error:
             return False, '\n'.join(error)
         return True, ''
@@ -750,8 +770,6 @@ class Business(db.Model):
                 _business = Business.query.get(int(form.get('id', -1)))
                 if not _business:
                     error.append('产品ID不存在')
-        if form.get('pid', '').strip() == '':
-            error.append('所属产品线为空')
         if form.get('name', '').strip() == '':
             error.append('产品名称为空')
         else:
@@ -763,6 +781,10 @@ class Business(db.Model):
                         error.append('产品已存在')
                 else:
                     error.append('产品已存在')
+        if form.get('pid', '').strip() == '':
+            error.append('所属产品线为空')
+        elif not Business.query.get(int(form.get('pid'))):
+            error.append('请选择产品线')
         if error:
             return False, '\n'.join(error)
         return True, ''
@@ -1144,20 +1166,21 @@ class Service(db.Model):
                     private_ip=private_ip, publish_ip=publish_ip, depend=depend, domain=domain)
 
     def to_modify_json(self):
-        private_ip = list(self.private_ips.values(PrivateIp.id, PrivateIp.ip))
-        publish_ip = list(self.publish_ips.values(PublishIp.id, PublishIp.ip))
-        depend = list(self.depends.values(Depend.id, Depend.name))
-        domain = list(self.domains.values(Domain.id, Domain.name))
-        publish_ip_excluded, private_ip_excluded, depend_excluded, domain_excluded = self.excluded_service()
+        private_ip_ids = list(flatten(self.private_ips.values(PrivateIp.id)))
+        publish_ip_ids = list(flatten(self.publish_ips.values(PublishIp.id)))
+        depend_ids = list(flatten(self.depends.values(Depend.id)))
+        domain_ids = list(flatten(self.domains.values(Domain.id)))
+        #publish_ip_excluded, private_ip_excluded, depend_excluded, domain_excluded = self.excluded_service()
         return dict(id=self.id, name=self.name, name_alias=self.name_alias, port=self.port,
                     business_id=self.business_id, business=self.business.name,
                     priority=self.priority.name, priority_id=self.priority_id,
                     user=self.user.name, user_id=self.user_id, 
                     contact=self.contact.split(), db_instance=self.db_instance.split(),
                     contact_email=self.contact_email.split(), status=self.status, comment=self.comment,
-                    private_ip=private_ip, publish_ip=publish_ip, depend=depend, domain=domain,
-                    publish_ip_excluded=publish_ip_excluded, private_ip_excluded=private_ip_excluded,
-                    depend_excluded=depend_excluded, domain_excluded=domain_excluded)
+                    private_ip_ids=private_ip_ids, publish_ip_ids=publish_ip_ids, depend_ids=depend_ids, 
+                    domain_ids=domain_ids)
+                    #publish_ip_excluded=publish_ip_excluded, private_ip_excluded=private_ip_excluded,
+                    #depend_excluded=depend_excluded, domain_excluded=domain_excluded)
 
     def excluded_service(self):
         publish_ip_total_set = set(PublishIp.query.values(PublishIp.id, PublishIp.ip))
@@ -1196,12 +1219,20 @@ class Service(db.Model):
                     error.append('应用已存在')
         if form.get('business_id', '').strip() == '':
             error.append('所属产品为空')
+        elif not Business.query.get(int(form.get('business_id'))):
+            error.append('请选择所属产品')
         if form.get('user_id', '').strip() == '':
             error.append('运行账户为空')
+        elif not ServiceUser.query.get(int(form.get('user_id'))):
+            error.append('请选择运行账户')
         if form.get('priority_id', '').strip() == '':
             error.append('应用优先级为空')
+        elif not Priority.query.get(int(form.get('priority_id'))):
+            error.append('请选择应用优先级')
         if form.get('status', '').strip() == '':
             error.append('应用状态为空')
+        elif int(form.get('status')) not in [0, 1]:
+            error.append('请选择应用状态')
         if error:
             return False, '\n'.join(error)
         return True, ''

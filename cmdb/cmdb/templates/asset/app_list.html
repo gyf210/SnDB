@@ -1,8 +1,6 @@
 {% extends "layout.html" %}
 
 {% block link %}
-<link href="{{ url_for('static', filename='DataTables/media/css/dataTables.bootstrap.min.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='multiselect2side/css/jquery.multiselect2side.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block style %}
@@ -99,9 +97,6 @@
 
 
 {% block script %}
-<script src="{{ url_for('static', filename='buttons/js/jquery.dataTables.min.js') }}"></script>
-<script src="{{ url_for('static', filename='DataTables/media/js/dataTables.bootstrap.min.js') }}"></script>
-<script src="{{ url_for('static', filename='multiselect2side/jquery.multiselect2side.js') }}"></script>
 <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
 {% endblock %}
 
@@ -110,10 +105,10 @@
 <script>
 $(document).ready(function() {
 	var table = $('.table-app').DataTable({
-		"ordering": false,
-		"lengthMenu": [[10, 25, 50], [10, 20, 50]],
-		"ajax": "/asset/app_list_data/",
-		"columns": [
+		ordering: false,
+		lengthMenu: [[10, 25, 50], [10, 20, 50]],
+		ajax: "/asset/app_list_data/",
+		columns: [
 			{"render": function(data, type, row) {
 				return 	'<label class="position-relative">' +
 						'<input type="checkbox" class="ace" value="'+row['id']+'"/>' +
@@ -139,7 +134,7 @@ $(document).ready(function() {
 			}
 		]		
 	});	
-
+	
 	$(document).on('click', 'th input:checkbox', function() {
 		var that = this;
 		$(this).closest('table').find('tr > td:first-child input:checkbox')
@@ -156,7 +151,7 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons: 'button[name="add-app"]',
+		<!-- submitButtons: 'button[name="add-app"]', -->
 		excluded: [':disabled'],
 		fields: {
 			name: {
@@ -198,59 +193,16 @@ $(document).ready(function() {
 	
 	$('#create-app').on('show.bs.modal', function (event) {
 		if(!event.relatedTarget){return;};
-		var privateiplist = '{% for private_ip in hosts_private %}<option value="{{ private_ip[0] }}">{{ private_ip[1] }}</option>{% endfor %}';
-		$("#private_ip").empty().multiselect2side('destroy');
-		$("#private_ip").html(privateiplist);
-		$("#private_ip").multiselect2side({
-			selectedPosition: 'left',
-			moveOptions: false,
-			labelsx: '已选区',
-			autoSort: true,
-			autoSortAvailable: true,
-			search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
-		});
-
-		var publishiplist = '{% for publish_ip in hosts_publish %}<option value="{{ publish_ip[0] }}">{{ publish_ip[1] }}</option>{% endfor %}';
-		$("#publish_ip").empty().multiselect2side('destroy');
-		$("#publish_ip").html(publishiplist);
-		$("#publish_ip").multiselect2side({
-			selectedPosition: 'left',
-			moveOptions: false,
-			labelsx: '已选区',
-			labeldx: '',
-			autoSort: true,
-			autoSortAvailable: true,
-			search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
-		});
-
-		var dependlist = '{% for depend in depends %}<option value="{{ depend[0] }}">{{ depend[1] }}</option>{% endfor %}';
-		$("#depend").empty().multiselect2side('destroy');
-		$("#depend").html(dependlist);
-		$("#depend").multiselect2side({
-			selectedPosition: 'left',
-			moveOptions: false,
-			labelsx: '已选区',
-			labeldx: '',
-			autoSort: true,
-			autoSortAvailable: true,
-			search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
-		});
-
-		var domainlist = '{% for domain in domains %}<option value="{{ domain[0] }}">{{ domain[1] }}</option>{% endfor %}';
-		$("#domain").empty().multiselect2side('destroy');
-		$("#domain").html(domainlist);
-		$("#domain").multiselect2side({
-			selectedPosition: 'left',
-			moveOptions: false,
-			labelsx: '已选区',
-			labeldx: '',
-			autoSort: true,
-			autoSortAvailable: true,
-			search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
-		});
-		
 		$('input').val('');
 		$('textarea').val('');
+		$('#private_ip-create .selectpicker').selectpicker('val', '');
+		$('#private_ip-create .selectpicker').selectpicker('refresh');
+		$('#publish_ip-create .selectpicker').selectpicker('val', '');
+		$('#publish_ip-create .selectpicker').selectpicker('refresh');
+		$('#depend-create .selectpicker').selectpicker('val', '');
+		$('#depend-create .selectpicker').selectpicker('refresh');
+		$('#domain-create .selectpicker').selectpicker('val', '');
+		$('#domain-create .selectpicker').selectpicker('refresh');
 		$('#business_id-create .selectpicker').selectpicker('val', 0);
 		$('#business_id-create .selectpicker').selectpicker('refresh');
 		$('#user_id-create .selectpicker').selectpicker('val', 0);
@@ -264,38 +216,9 @@ $(document).ready(function() {
 	
 	$('.btn-create-submit').on('click', function() {
 		var params = $('.create-form').serializeArray();
-
-		var privateiplist = [];
-		$("#private_ipms2side__sx option").each(function()
-			{
-			privateiplist.push($(this).val())
-		});
-
-		var publishiplist = [];
-		$("#publish_ipms2side__sx option").each(function()
-			{
-			publishiplist.push($(this).val())
-		});
-
-		var dependlist = [];
-		$("#dependms2side__sx option").each(function()
-			{
-			dependlist.push($(this).val())
-		});
-
-		var domainlist = [];
-		$("#domainms2side__sx option").each(function()
-			{
-			domainlist.push($(this).val())
-		});
-
 		var datas = {
       		data: JSON.stringify({
                 "params": params,
-                "publish_ip": publishiplist,
-                "private_ip": privateiplist,
-                "depend": dependlist,
-                "domain": domainlist
             })
 		};
 
@@ -345,7 +268,7 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons: 'button[name="modify-app"]',
+		<!-- submitButtons: 'button[name="modify-app"]', -->
 		excluded: [':disabled'],
 		fields: {
 			name: {
@@ -390,6 +313,22 @@ $(document).ready(function() {
 		var id = $(this).data('id');
 		$.post('/asset/app_modify_list/', {'id': id}, function(data) {
 			for (var key in data) {
+				if(key=='private_ip_ids') {
+					$('#private_ip-modify .selectpicker').selectpicker('val', data['private_ip_ids']);
+					$('#private_ip-modify .selectpicker').selectpicker('refresh');
+				};
+				if(key=='publish_ip_ids') {
+					$('#publish_ip-modify .selectpicker').selectpicker('val', data['publish_ip_ids']);
+					$('#publish_ip-modify .selectpicker').selectpicker('refresh');				
+				};
+				if(key=='depend_ids') {
+					$('#depend-modify .selectpicker').selectpicker('val', data['depend_ids']);
+					$('#depend-modify .selectpicker').selectpicker('refresh');	
+				};
+				if(key=='domain_ids') {
+					$('#domain-modify .selectpicker').selectpicker('val', data['domain_ids']);
+					$('#domain-modify .selectpicker').selectpicker('refresh');	
+				};
 				if(key=='business_id') {
 					$('#business_id-modify .selectpicker').selectpicker('val', data['business_id']);
 					$('#business_id-modify .selectpicker').selectpicker('refresh');
@@ -418,101 +357,6 @@ $(document).ready(function() {
 				if(key=='comment') {
 					$('#comment-modify').val(data[key]);
 				};
-				if(key=='private_ip') {
-					$("#private_ip_modify").empty().multiselect2side('destroy');
-					$("#private_ip_modify").multiselect2side({
-						selectedPosition: 'left',
-						moveOptions: false,
-						labelsx: '已选区',
-						labeldx: '',
-						autoSort: true,
-						autoSortAvailable: true,
-						search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
-					});
-					var list=[], sxlist=[], dxlist=[];
-					for (var i in data[key]) {
-						sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
-						list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
-					};
-					$("#private_ip_modifyms2side__sx").html(sxlist.join("<br />"));
-					$("#private_ip_modify").html(list.join("<br />"));
-					for (var i in data['private_ip_excluded']) {
-						dxlist.push('<option value="'+data['private_ip_excluded'][i][0]+'">'+data['private_ip_excluded'][i][1]+'</option>');
-					};
-					$("#private_ip_modifyms2side__dx").html(dxlist.join("<br />"));
-				};
-
-				if(key=='publish_ip') {
-					$("#publish_ip_modify").empty().multiselect2side('destroy');
-					$("#publish_ip_modify").multiselect2side({
-						selectedPosition: 'left',
-						moveOptions: false,
-						labelsx: '已选区',
-						labeldx: '',
-						autoSort: true,
-						autoSortAvailable: true,
-						search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
-					});
-					var list=[], sxlist=[], dxlist=[];
-					for (var i in data[key]) {
-						sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
-						list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
-					};
-					$("#publish_ip_modifyms2side__sx").html(sxlist.join("<br />"));
-					$("#publish_ip_modify").html(list.join("<br />"));
-					for (var i in data['publish_ip_excluded']) {
-						dxlist.push('<option value="'+data['publish_ip_excluded'][i][0]+'">'+data['publish_ip_excluded'][i][1]+'</option>');
-					};
-					$("#publish_ip_modifyms2side__dx").html(dxlist.join("<br />"));
-				};
-
-				if(key=='depend') {
-					$("#depend_modify").empty().multiselect2side('destroy');
-					$("#depend_modify").multiselect2side({
-						selectedPosition: 'left',
-						moveOptions: false,
-						labelsx: '已选区',
-						labeldx: '',
-						autoSort: true,
-						autoSortAvailable: true,
-						search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
-					});
-					var list=[], sxlist=[], dxlist=[];
-					for (var i in data[key]) {
-						sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
-						list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
-					};
-					$("#depend_modifyms2side__sx").html(sxlist.join("<br />"));
-					$("#depend_modify").html(list.join("<br />"));
-					for (var i in data['depend_excluded']) {
-						dxlist.push('<option value="'+data['depend_excluded'][i][0]+'">'+data['depend_excluded'][i][1]+'</option>');
-					};
-					$("#depend_modifyms2side__dx").html(dxlist.join("<br />"));
-				};
-
-				if(key=='domain') {
-					$("#domain_modify").empty().multiselect2side('destroy');
-					$("#domain_modify").multiselect2side({
-						selectedPosition: 'left',
-						moveOptions: false,
-						labelsx: '已选区',
-						labeldx: '',
-						autoSort: true,
-						autoSortAvailable: true,
-						search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
-					});
-					var list=[], sxlist=[], dxlist=[];
-					for (var i in data[key]) {
-						sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
-						list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
-					};
-					$("#domain_modifyms2side__sx").html(sxlist.join("<br />"));
-					$("#domain_modify").html(list.join("<br />"));
-					for (var i in data['domain_excluded']) {
-						dxlist.push('<option value="'+data['domain_excluded'][i][0]+'">'+data['domain_excluded'][i][1]+'</option>');
-					};
-					$("#domain_modifyms2side__dx").html(dxlist.join("<br />"));
-				};
 				$('input[name=' + key + ']').val(data[key]);
 			}
 			$('#modify-app').modal('show');
@@ -521,38 +365,9 @@ $(document).ready(function() {
 	
 	$('.btn-modify-submit').on('click', function() {
 		var params = $('.modify-form').serializeArray();
-
-		var privateiplist = [];
-		$("#private_ip_modifyms2side__sx option").each(function()
-			{
-			privateiplist.push($(this).val())
-		});
-
-		var publishiplist = [];
-		$("#publish_ip_modifyms2side__sx option").each(function()
-			{
-			publishiplist.push($(this).val())
-		});
-
-		var dependlist = [];
-		$("#depend_modifyms2side__sx option").each(function()
-			{
-			dependlist.push($(this).val())
-		});
-
-		var domainlist = [];
-		$("#domain_modifyms2side__sx option").each(function()
-			{
-			domainlist.push($(this).val())
-		});
-
 		var datas = {
       		data: JSON.stringify({
-                "params": params,
-                "publish_ip": publishiplist,
-                "private_ip": privateiplist,
-                "depend": dependlist,
-                "domain": domainlist
+                "params": params
             })
 		};
 
@@ -705,7 +520,6 @@ $(document).ready(function() {
 									},
 									function(isConfirm){
 										table.ajax.reload();
-										// table.api().ajax.reload();
 										<!-- window.location.href = '/asset/app_list/'; -->
 									}
 								);

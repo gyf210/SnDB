@@ -1,9 +1,6 @@
 {% extends "layout.html" %}
 
 {% block link %}
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.bootstrap.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.responsive.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.tableTools.min.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block style %}
@@ -91,20 +88,17 @@
 
 
 {% block script %}
-<script src="{{ url_for('static', filename='js/plugins/dataTables/jquery.dataTables.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.bootstrap.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.responsive.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.tableTools.min.js') }}"></script>
 {% endblock %}
 
 
 {% block js %}
 <script>
 $(document).ready(function() {
-    var table = $('.table-business').dataTable({
-		"ordering": false,		
-		"ajax": "/asset/business_list_data/",
-		"columns": [
+    var table = $('.table-business').DataTable({
+		ordering: false,
+		lengthMenu: [[10, 25, 50], [10, 20, 50]],	
+		ajax: "/asset/business_list_data/",
+		columns: [
 			{"render": function(data, type, row) {
 				return 	'<label class="position-relative">' +
 						'<input type="checkbox" class="ace" value="'+row['id']+'"/>' +
@@ -140,7 +134,8 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons: 'button[type="button"]',		
+		<!-- submitButtons: 'button[name="add-business"]', -->
+		excluded: [':disabled'],		
 		fields: {
 			name: {
 				validators: {
@@ -166,7 +161,8 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons: 'button[type="button"]',	
+		<!-- submitButtons: 'button[name="modify-business"]', -->
+		excluded: [':disabled'],
 		fields: {
 			name: {
 				validators: {
@@ -193,9 +189,9 @@ $(document).ready(function() {
 		if(!event.relatedTarget){return;}
 		$('input').val('');
 		$('textarea').val('');
-		$('#business-create').bootstrapValidator('resetForm', true);
 		$('#product-create .selectpicker').selectpicker('val', 0);
 		$('#product-create .selectpicker').selectpicker('refresh');
+		$('#business-create').bootstrapValidator('resetForm', true);
 	});
 	
 	$('.btn-create-submit').on('click', function() {
@@ -215,8 +211,8 @@ $(document).ready(function() {
 					},
 					function(isConfirm){
 						$('#create-business').modal('hide');
-						// table.api().ajax.reload();
-						window.location.href = '/asset/business_list/';
+						table.ajax.reload();
+						<!-- window.location.href = '/asset/business_list/'; -->
 					}
 				);
 			}
@@ -278,8 +274,8 @@ $(document).ready(function() {
 					},
 					function(isConfirm){
 						$('#modify-business').modal('hide');
-						// table.api().ajax.reload();
-						window.location.href = '/asset/business_list/';
+						table.ajax.reload();
+						<!-- window.location.href = '/asset/business_list/'; -->
 					}
 				);
 			}
@@ -331,7 +327,8 @@ $(document).ready(function() {
 								closeOnCancel: false
 								},
 								function(isConfirm){
-									window.location.href = '/asset/business_list/';
+									table.ajax.reload();
+									<!-- window.location.href = '/asset/business_list/'; -->
 								}
 							);
 						}
@@ -408,7 +405,8 @@ $(document).ready(function() {
 									closeOnCancel: false
 									},
 									function(isConfirm){
-										window.location.href = '/asset/business_list/';
+										table.ajax.reload();
+										<!-- window.location.href = '/asset/business_list/'; -->
 									}
 								);
 							}
@@ -425,7 +423,8 @@ $(document).ready(function() {
 									closeOnCancel: false
 									},
 									function(isConfirm){
-										window.location.href = '/asset/business_list/';
+										table.ajax.reload();
+										<!-- window.location.href = '/asset/business_list/'; -->
 									}
 								);
 							}

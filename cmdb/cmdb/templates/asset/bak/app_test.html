@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='bootstrap-multiselect/dist/css/bootstrap-multiselect.css') }}" rel="stylesheet">
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='bootstrap-multiselect/dist/js/bootstrap-multiselect.js') }}"></script>
+</head>
+
+<body>
+	<select id="example-getting-started" multiple="multiple">
+		<option value="cheese">Cheese</option>
+		<option value="tomatoes">Tomatoes</option>
+		<option value="mozarella">Mozzarella</option>
+		<option value="mushrooms">Mushrooms</option>
+		<option value="pepperoni">Pepperoni</option>
+		<option value="onions">Onions</option>
+	</select>
+	
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#example-getting-started').multiselect();
+		});
+	</script>
+</body>

@@ -1,9 +1,6 @@
 {% extends "layout.html" %}
 
 {% block link %}
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.bootstrap.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.responsive.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='css/plugins/dataTables/dataTables.tableTools.min.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='multiselect2side/css/jquery.multiselect2side.css') }}" rel="stylesheet">
 {% endblock %}
 
@@ -91,10 +88,6 @@
 
 
 {% block script %}
-<script src="{{ url_for('static', filename='js/plugins/dataTables/jquery.dataTables.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.bootstrap.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.responsive.js') }}"></script>
-<script src="{{ url_for('static', filename='js/plugins/dataTables/dataTables.tableTools.min.js') }}"></script>
 <script src="{{ url_for('static', filename='multiselect2side/jquery.multiselect2side.js') }}"></script>
 {% endblock %}
 
@@ -103,9 +96,10 @@
 <script>
 $(document).ready(function() {
     var table = $('.table-check').dataTable({
-			"ordering": false,
-			"ajax": "/asset/app_check_data/",
-			"columns": [
+			ordering: false,
+			lengthMenu: [[10, 25, 50], [10, 20, 50]],
+			ajax: "/asset/app_check_data/",
+			columns: [
 			{"data": function(row) {
 				if (row['state_id'] == 1) {
 					return '<span class="label label-primary">' + row['state_name'] + '</span>';
@@ -155,7 +149,7 @@ $(document).ready(function() {
 			invalid: 'glyphicon glyphicon-remove',
 			validating: 'glyphicon glyphicon-refresh'
 		},
-		submitButtons: 'button[type="button"]',
+		<!-- submitButtons: 'button[name="check-modify-app"]', -->
 		fields: {
 			name: {
 				validators: {
@@ -380,7 +374,8 @@ $(document).ready(function() {
 						closeOnCancel: false
 					},
 					function(isConfirm){
-						window.location.href = '/asset/app_check/';
+						table.ajax.reload();
+						<!-- window.location.href = '/asset/app_check/'; -->
 					}
 				);
 			}
@@ -432,7 +427,8 @@ $(document).ready(function() {
 									closeOnCancel: false
 								},
 								function(isConfirm){
-									window.location.href = '/asset/app_check/';
+									table.ajax.reload();
+									<!-- window.location.href = '/asset/app_check/'; -->
 								}
 							);
 						}
