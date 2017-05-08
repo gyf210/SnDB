@@ -96,7 +96,7 @@
 $(document).ready(function() {
 	var table = $('.table-idc').DataTable({
 			ordering: false,
-			lengthMenu: [[10, 25, 50], [10, 20, 50]],
+			"lengthMenu": [[10, 20, 40], [10, 20, 40]],
 			ajax: "/asset/idc_list_data/",
 			columns: [
 			{"render": function(data, type, row) {
