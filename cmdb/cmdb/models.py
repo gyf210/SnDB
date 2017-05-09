@@ -750,9 +750,10 @@ class Business(db.Model):
             return '{},{}'.format(_parent_business.product, pid), _parent_business.type + 1
 
     @staticmethod
-    def choice_business_list(start_type_id, end_type_id):
+    def choice_business_list(start_type_id=0, end_type_id=100):
         _result = []
-        for _business in Business.query.filter(Business.type > start_type_id, Business.type < end_type_id):
+        _businesses = Business.query.filter(Business.type>start_type_id, Business.type<end_type_id).order_by(Business.type)
+        for _business in _businesses:
             _tmp_list = _business.product.split(',')
             _tmp_list.pop(0)
             _tmp_list.append(str(_business.id))

@@ -109,6 +109,7 @@
 <script>
 $(document).ready(function() {
 	var table = $('.table-host').DataTable({
+		"autoWidth": false,
 		ordering: false,
 		"lengthMenu": [[10, 20, 40], [10, 20, 40]],
 		ajax: "/asset/host_list_data/",

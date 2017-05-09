@@ -35,7 +35,7 @@
 					<div class="form-group">
 						<label class="col-sm-3 control-label">内网IP：</label>
 						<div class="col-sm-8" id="private_ip-create">
-							<select name="private_ip" class="form-control selectpicker show-tick" multiple data-max-options="40" data-selected-text-format="count > 11" data-actions-box="true" data-style="btn-info" data-live-search="true" data-size="5">																
+							<select name="private_ip" class="form-control selectpicker show-tick" multiple data-actions-box="true" data-style="btn-info" data-live-search="true" data-size="5">																
 								{% for private_ip in private_ips %}
 								<option value="{{ private_ip.id }}">{{ private_ip.ip }}</option>
 								{% endfor %}
@@ -47,7 +47,7 @@
 					<div class="form-group">
 						<label class="col-sm-3 control-label">外网IP：</label>
                         <div class="col-sm-8" id="publish_ip-create">
-							<select name="publish_ip" class="form-control selectpicker show-tick" multiple data-max-options="40" data-selected-text-format="count > 11" data-actions-box="true" data-style="btn-info" data-live-search="true" data-size="5">																	
+							<select name="publish_ip" class="form-control selectpicker show-tick" multiple data-actions-box="true" data-style="btn-info" data-live-search="true" data-size="5">																	
 								{% for publish_ip in publish_ips %}
 								<option value="{{ publish_ip.id }}">{{ publish_ip.ip }}</option>
 								{% endfor %}
@@ -59,7 +59,7 @@
 					<div class="form-group">
 						<label class="col-sm-3 control-label">基础依赖：</label>
                         <div class="col-sm-8" id="depend-create">
-							<select name="depend" class="form-control selectpicker show-tick" multiple data-selected-text-format="count > 6" data-actions-box="true" data-style="btn-info" data-live-search="true" data-size="5">																
+							<select name="depend" class="form-control selectpicker show-tick" multiple data-actions-box="true" data-style="btn-info" data-live-search="true" data-size="5">																
 								{% for depend in depends %}
 								<option value="{{ depend.id }}">{{ depend.name }}</option>
 								{% endfor %}
@@ -71,7 +71,7 @@
                     <div class="form-group">
 						<label class="col-sm-3 control-label">所属域名：</label>
 	                    <div class="col-sm-8" id="domain-create">
-							<select name="domain" class="form-control selectpicker show-tick" multiple data-max-options="40" data-selected-text-format="count > 3" data-actions-box="true" data-style="btn-info" data-live-search="true" data-size="5">									
+							<select name="domain" class="form-control selectpicker show-tick" multiple data-actions-box="true" data-style="btn-info" data-live-search="true" data-size="5">									
 								{% for domain in domains %}
 								<option value="{{ domain.id }}">{{ domain.name }}</option>
 								{% endfor %}

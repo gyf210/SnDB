@@ -1,7 +1,6 @@
 {% extends "layout.html" %}
 
 {% block link %}
-<link href="{{ url_for('static', filename='multiselect2side/css/jquery.multiselect2side.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block style %}
@@ -88,16 +87,16 @@
 
 
 {% block script %}
-<script src="{{ url_for('static', filename='multiselect2side/jquery.multiselect2side.js') }}"></script>
 {% endblock %}
 
 
 {% block js %}
 <script>
 $(document).ready(function() {
-    var table = $('.table-check').dataTable({
+    var table = $('.table-check').DataTable({
+			"autoWidth": false,
 			ordering: false,
-			lengthMenu: [[10, 25, 50], [10, 20, 50]],
+			"lengthMenu": [[10, 20, 40], [10, 20, 40]],
 			ajax: "/asset/app_check_data/",
 			columns: [
 			{"data": function(row) {
@@ -129,14 +128,14 @@ $(document).ready(function() {
 			{"data": "change_time"},
 			{"data": function(row) {
 				var elements = [];
-				elements.push('<div class="btn-group"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button><ul class="dropdown-menu" style="min-width: 70px;">');
-				if (row['state_id'] != 1) {
-					elements.push('<li><a href="#modify-check" class="btn btn-info btn-check-modify" role="button" aria-pressed="true" data-toggle="modal" data-id="' + row['id'] + '" data-service="' + row['service_id'] + '">更新</a></li>');
-					// elements.push('<button type="button" data-target="#modify-check" class="btn btn-info btn-check-modify" data-toggle="modal" data-id="' + row['id'] + '" data-service="' + row['service_id'] + '">更新</a></li>');
-				}
-				elements.push('<li><a class="btn btn-danger btn-check-delete" role="button" aria-pressed="true" data-id="'+ row['id'] + '">删除</a></li>');
-				//elements.push('<button type="button" class="btn btn-danger btn-check-delete" data-backdrop="false" data-id="' + row['id'] + '">删除</a></li>');
-				elements.push('</ul></div>');
+				//elements.push('<div class="btn-group"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button><ul class="dropdown-menu" style="min-width: 70px;">');
+				//if (row['state_id'] != 1) {
+					//elements.push('<li><a href="#modify-check" class="btn btn-info btn-check-modify" role="button" aria-pressed="true" data-toggle="modal" data-id="' + row['id'] + '" data-service="' + row['service_id'] + '">更新</a></li>');
+				elements.push('<button type="button" data-target="#modify-check" class="btn btn-sm btn-info btn-check-modify" data-toggle="modal" data-id="' + row['id'] + '" data-service="' + row['service_id'] + '">更新</a></li>');
+				//}
+				//elements.push('<li><a class="btn btn-danger btn-check-delete" role="button" aria-pressed="true" data-id="'+ row['id'] + '">删除</a></li>');
+				elements.push('<button type="button" class="btn btn-sm btn-danger btn-check-delete" data-backdrop="false" data-id="' + row['id'] + '">删除</a></li>');
+				//elements.push('</ul></div>');
 				return elements.join(' ');}
 			}
 		]
@@ -184,7 +183,7 @@ $(document).ready(function() {
 		}   
 	});
 	
-	$("#modify-app").draggable({
+	$("#modify-check").draggable({
 		handle: ".modal-header"
 	});	
 	
@@ -197,6 +196,22 @@ $(document).ready(function() {
 				$('.modify-form').html('<h1><center><font color="red">数据异常无法更新</font></center></h1>');
 			} else {
 				for (var key in data) {
+					if(key=='private_ip_ids') {
+						$('#private_ip-modify .selectpicker').selectpicker('val', data['private_ip_ids']);
+						$('#private_ip-modify .selectpicker').selectpicker('refresh');
+					};
+					if(key=='publish_ip_ids') {
+						$('#publish_ip-modify .selectpicker').selectpicker('val', data['publish_ip_ids']);
+						$('#publish_ip-modify .selectpicker').selectpicker('refresh');				
+					};
+					if(key=='depend_ids') {
+						$('#depend-modify .selectpicker').selectpicker('val', data['depend_ids']);
+						$('#depend-modify .selectpicker').selectpicker('refresh');	
+					};
+					if(key=='domain_ids') {
+						$('#domain-modify .selectpicker').selectpicker('val', data['domain_ids']);
+						$('#domain-modify .selectpicker').selectpicker('refresh');	
+					};
 					if(key=='business_id') {
 						$('#business_id-modify .selectpicker').selectpicker('val', data['business_id']);
 						$('#business_id-modify .selectpicker').selectpicker('refresh');
@@ -225,141 +240,20 @@ $(document).ready(function() {
 					if(key=='comment') {
 						$('#comment-modify').val(data[key]);
 					};
-					if(key=='private_ip') {
-						$("#private_ip_modify").empty().multiselect2side('destroy');
-						$("#private_ip_modify").multiselect2side({
-							selectedPosition: 'left',
-							moveOptions: false,
-							labelsx: '已选区',
-							labeldx: '',
-							autoSort: true,
-							autoSortAvailable: true,
-							search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
-						});
-						var list=[], sxlist=[], dxlist=[];
-						for (var i in data[key]) {
-							sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
-							list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
-						};
-						$("#private_ip_modifyms2side__sx").html(sxlist.join("<br />"));
-						$("#private_ip_modify").html(list.join("<br />"));
-						for (var i in data['private_ip_excluded']) {
-							dxlist.push('<option value="'+data['private_ip_excluded'][i][0]+'">'+data['private_ip_excluded'][i][1]+'</option>');
-						};
-						$("#private_ip_modifyms2side__dx").html(dxlist.join("<br />"));
-					};
-					if(key=='publish_ip') {
-						$("#publish_ip_modify").empty().multiselect2side('destroy');
-						$("#publish_ip_modify").multiselect2side({
-							selectedPosition: 'left',
-							moveOptions: false,
-							labelsx: '已选区',
-							labeldx: '',
-							autoSort: true,
-							autoSortAvailable: true,
-							search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
-						});
-						var list=[], sxlist=[], dxlist=[];
-						for (var i in data[key]) {
-							sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
-							list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
-						};
-						$("#publish_ip_modifyms2side__sx").html(sxlist.join("<br />"));
-						$("#publish_ip_modify").html(list.join("<br />"));
-						for (var i in data['publish_ip_excluded']) {
-							dxlist.push('<option value="'+data['publish_ip_excluded'][i][0]+'">'+data['publish_ip_excluded'][i][1]+'</option>');
-						};
-						$("#publish_ip_modifyms2side__dx").html(dxlist.join("<br />"));
-					};
-					if(key=='depend') {
-						$("#depend_modify").empty().multiselect2side('destroy');
-						$("#depend_modify").multiselect2side({
-							selectedPosition: 'left',
-							moveOptions: false,
-							labelsx: '已选区',
-							labeldx: '',
-							autoSort: true,
-							autoSortAvailable: true,
-							search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
-						});
-						var list=[], sxlist=[], dxlist=[];
-						for (var i in data[key]) {
-							sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
-							list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
-						};
-						$("#depend_modifyms2side__sx").html(sxlist.join("<br />"));
-						$("#depend_modify").html(list.join("<br />"));
-						for (var i in data['depend_excluded']) {
-							dxlist.push('<option value="'+data['depend_excluded'][i][0]+'">'+data['depend_excluded'][i][1]+'</option>');
-						};
-						$("#depend_modifyms2side__dx").html(dxlist.join("<br />"));
-					};
-					if(key=='domain') {
-						$("#domain_modify").empty().multiselect2side('destroy');
-						$("#domain_modify").multiselect2side({
-							selectedPosition: 'left',
-							moveOptions: false,
-							labelsx: '已选区',
-							labeldx: '',
-							autoSort: true,
-							autoSortAvailable: true,
-							search: '待选区&nbsp;&nbsp;&nbsp;&nbsp;搜索: ',
-						});
-						var list=[], sxlist=[], dxlist=[];
-						for (var i in data[key]) {
-							sxlist.push('<option value="'+data[key][i][0]+'">'+data[key][i][1]+'</option>');
-							list.push('<option value="'+data[key][i][0]+'" selected="selected">'+data[key][i][1]+'</option>');
-						};
-						$("#domain_modifyms2side__sx").html(sxlist.join("<br />"));
-						$("#domain_modify").html(list.join("<br />"));
-						for (var i in data['domain_excluded']) {
-							dxlist.push('<option value="'+data['domain_excluded'][i][0]+'">'+data['domain_excluded'][i][1]+'</option>');
-						};
-						$("#domain_modifyms2side__dx").html(dxlist.join("<br />"));
-					};
+					
 					$('input[name=' + key + ']').val(data[key]);
 				}
-				$('#modify-app').modal('show');}
+				$('#modify-check').modal('show');}
 			}, 'json');
 		});			
 	
 	$('.btn-modify-submit').on('click', function() {
 		var params = $('.modify-form').serializeArray();
-
-		var privateiplist = [];
-		$("#private_ip_modifyms2side__sx option").each(function()
-			{
-			privateiplist.push($(this).val())
-		});
-
-		var publishiplist = [];
-		$("#publish_ip_modifyms2side__sx option").each(function()
-			{
-			publishiplist.push($(this).val())
-		});
-
-		var dependlist = [];
-		$("#depend_modifyms2side__sx option").each(function()
-			{
-			dependlist.push($(this).val())
-		});
-
-		var domainlist = [];
-		$("#domain_modifyms2side__sx option").each(function()
-			{
-			domainlist.push($(this).val())
-		});
-
 		var datas = {
       		data: JSON.stringify({
-                "params": params,
-                "publish_ip": publishiplist,
-                "private_ip": privateiplist,
-                "depend": dependlist,
-                "domain": domainlist
+                "params": params
             })
 		};
-
 		$.post('/asset/check_update_data/', datas, function(data) {
 			if(data['error'] == '') {
 				swal({
@@ -374,6 +268,7 @@ $(document).ready(function() {
 						closeOnCancel: false
 					},
 					function(isConfirm){
+						$('#modify-check').modal('hide');
 						table.ajax.reload();
 						<!-- window.location.href = '/asset/app_check/'; -->
 					}

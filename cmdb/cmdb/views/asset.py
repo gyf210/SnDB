@@ -139,7 +139,7 @@ def host_list():
     host_types = query_db_function(HostType)
     systems = query_db_function(System)
     envs = query_db_function(Env)
-    businesses = Business.choice_business_list(0, 3)
+    businesses = Business.choice_business_list()
     return render_template('asset/host_list.html', idcs=idcs, host_types=host_types,
                             systems=systems, envs=envs, businesses=businesses)
 
@@ -609,7 +609,7 @@ def app_list():
     publish_ips = list(PublishIp.query.values(PublishIp.id, PublishIp.ip))
     depends = list(Depend.query.values(Depend.id, Depend.name))
     domains = list(Domain.query.values(Domain.id, Domain.name))
-    businesses = Business.choice_business_list(0, 3)
+    businesses = Business.choice_business_list()
     return render_template('asset/app_list.html', private_ips=private_ips, publish_ips=publish_ips,
                            depends=depends, domains=domains, businesses=businesses)
 
@@ -1068,8 +1068,13 @@ def app_batch_create():
 @login_required
 @admin_required
 def app_check():
-    businesses = Business.choice_business_list(0, 3)
-    return render_template('/asset/app_check.html', businesses=businesses)
+    businesses = Business.choice_business_list()
+    private_ips = list(PrivateIp.query.values(PrivateIp.id, PrivateIp.ip))
+    publish_ips = list(PublishIp.query.values(PublishIp.id, PublishIp.ip))
+    depends = list(Depend.query.values(Depend.id, Depend.name))
+    domains = list(Domain.query.values(Domain.id, Domain.name))
+    return render_template('/asset/app_check.html', businesses=businesses, private_ips=private_ips, 
+                           publish_ips=publish_ips, depends=depends, domains=domains)
 
 
 @asset.route('/app_check_data/')
@@ -1104,54 +1109,76 @@ def check_modify_list():
 def check_update_data():
     error, _form = '', {}
     data = json.loads(request.form.get('data'))
-    print(data)
     if not data:
         error = '更新数据为空'
     else:
+        _form = {}
+        _private_ip_set = set()
+        _publish_ip_set = set()
+        _depend_set = set()
+        _domain_set = set()
         for _item in data['params']:
             if _item['name'] == 'agent_id':
                 agent_id = _item['value']
-                continue
-            if not (_item['name'].startswith('private_ip') or _item['name'].startswith('depend') or 
-                    _item['name'].startswith('domain') or _item['name'].startswith('publish_ip')):
+            elif _item['name'].startswith('private_ip'):
+                _private_ip_set.add(_item['value'])
+            elif _item['name'].startswith('publish_ip'):
+                _publish_ip_set.add(_item['value'])
+            elif _item['name'].startswith('depend'):
+                _depend_set.add(_item['value'])
+            elif _item['name'].startswith('domain'):
+                _domain_set.add(_item['value'])
+            else:
                 _form[_item['name']] = _item['value']
         ret, error = Service.validate_service(_form)
         if ret:
             _hosts = set()
-            _service = Service.query.get(_form['id'])
-            if _service:
-                Service.query.filter_by(id=int(_form['id'])).update(_form)
-                if _service.private_ips.count():
-                    for _ip in _service.private_ips.all():
-                        _ip.services.remove(_service)
-                if _service.publish_ips.count():
-                    for _ip in _service.publish_ips.all():
-                        _ip.services.remove(_service)
-                if _service.domains.count():
-                    for _domain in _service.domains.all():
-                        _domain.services.remove(_service)
-                if _service.depends.count():
-                    for _depend in _service.depends.all():
-                        _depend.services.remove(_service)
-                if _service.hosts.count():
-                    for _host in _service.hosts.all():
-                        _host.services.remove(_service)
-                for _id in data['publish_ip']:
+            Service.query.filter_by(id=int(_form['id'])).update(_form)
+            _service = Service.query.get(int(_form['id']))
+            if _service.private_ips.count():
+                for _ip in _service.private_ips.all():
+                    _ip.services.remove(_service)
+            if _service.publish_ips.count():
+                for _ip in _service.publish_ips.all():
+                    _ip.services.remove(_service)
+            if _service.domains.count():
+                for _domain in _service.domains.all():
+                    _domain.services.remove(_service)
+            if _service.depends.count():
+                for _depend in _service.depends.all():
+                    _depend.services.remove(_service)
+            if _service.hosts.count():
+                for _host in _service.hosts.all():
+                    _host.services.remove(_service)
+            if _publish_ip_set:
+                for _id in _publish_ip_set:
                     _publish_ip = PublishIp.query.get(int(_id))
-                    _service.publish_ips.append(_publish_ip)
-                    _hosts.add(_publish_ip.host)
-                for _id in data['private_ip']:
+                    if _publish_ip:
+                        _service.publish_ips.append(_publish_ip)
+                        _hosts.add(_publish_ip.host)
+            if _private_ip_set:
+                for _id in _private_ip_set:
                     _private_ip = PrivateIp.query.get(int(_id))
-                    _service.private_ips.append(_private_ip)
-                    _hosts.add(_private_ip.host)
-                _service.domains.extend([Domain.query.get(int(_id)) for _id in data['domain']])
-                _service.depends.extend([Depend.query.get(int(_id)) for _id in data['depend']])
-                _service.hosts.extend(_hosts)
-                _agent = ServiceAgent.query.get(agent_id)
-                if _agent:
-                    _agent.state = 1
-                    _agent.check_user = current_user.name    
-                db.session.commit()
+                    if _private_ip:
+                        _service.private_ips.append(_private_ip)
+                        _hosts.add(_private_ip.host)
+            if _depend_set:
+                for _id in _depend_set:
+                    _depend = Depend.query.get(int(_id))
+                    if _depend:
+                        _service.depends.append(_depend)
+            if _domain_set:
+                for _id in _domain_set:
+                    _domain = Domain.query.get(int(_id))
+                    if _domain:
+                        _service.domains.append(_domain)
+            _service.hosts.extend(_hosts)
+            _agent = ServiceAgent.query.get(agent_id)
+            if _agent:
+                _agent.state = 1
+                _agent.check_user = current_user.name    
+            db.session.commit()
+            error = ''
     return jsonify({'error': error})
             
 
@@ -1169,5 +1196,4 @@ def check_delete_data():
     else:
         error = '删除记录不存在'
     return jsonify({'error': error})
-
 

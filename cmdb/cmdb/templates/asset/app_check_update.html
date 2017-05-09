@@ -1,4 +1,4 @@
-<div class="modal fade" id="modify-app" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+<div class="modal fade" id="modify-check" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -33,53 +33,55 @@
                     <div class="hr-line-dashed"></div>
 					<div class="form-group">
 						<label class="col-sm-3 control-label">内网IP：</label>
-                        <div class="col-sm-8">
-						</div>
-						<label class="control-label"></label>
-					</div>
-					<div class="form-group">
-						<div class="col-sm-12">
-							<select name="private_ip_modify[]" id='private_ip_modify' multiple='multiple' size='2' >
+						<div class="col-sm-8" id="private_ip-modify">
+							<select name="private_ip_modify" class="form-control selectpicker show-tick" multiple data-actions-box="true" data-style="btn-info" data-live-search="true" data-size="5">																
+								{% for private_ip in private_ips %}
+								<option value="{{ private_ip.id }}">{{ private_ip.ip }}</option>
+								{% endfor %}
 							</select>
 						</div>
-					</div>
+						<label class="control-label"></label>
+					</div>	
                     <div class="hr-line-dashed"></div>
 					<div class="form-group">
 						<label class="col-sm-3 control-label">外网IP：</label>
-                        <div class="col-sm-8">
-						</div>
-						<label class="control-label"></label>
-					</div>
-					<div class="form-group">
-						<div class="col-sm-12">
-							<select name="publish_ip_modify[]" id='publish_ip_modify' multiple='multiple' size='2' >
+                        <div class="col-sm-8" id="publish_ip-modify">
+							<select name="publish_ip_modify" class="form-control selectpicker show-tick" multiple data-actions-box="true" data-style="btn-info" data-live-search="true" data-size="5">																	
+								{% for publish_ip in publish_ips %}
+								<option value="{{ publish_ip.id }}">{{ publish_ip.ip }}</option>
+								{% endfor %}
 							</select>
 						</div>
+						<label class="control-label"></label>
 					</div>
                     <div class="hr-line-dashed"></div>
 					<div class="form-group">
 						<label class="col-sm-3 control-label">基础依赖：</label>
-					</div>
-					<div class="form-group">
-						<div class="col-sm-12">
-							<select name="depend_modify[]" id='depend_modify' multiple='multiple' size='2' >
+                        <div class="col-sm-8" id="depend-modify">
+							<select name="depend_modify" class="form-control selectpicker show-tick" multiple data-actions-box="true" data-style="btn-info" data-live-search="true" data-size="5">																
+								{% for depend in depends %}
+								<option value="{{ depend.id }}">{{ depend.name }}</option>
+								{% endfor %}
 							</select>
-						</div>
+						</div>	
+						<label class="control-label"></label>						
 					</div>
                     <div class="hr-line-dashed"></div>
 					<div class="form-group">
 						<label class="col-sm-3 control-label">所属域名：</label>
-					</div>
-					<div class="form-group">
-						<div class="col-sm-12">
-							<select name="domain_modify[]" id='domain_modify' multiple='multiple' size='2' >
+	                    <div class="col-sm-8" id="domain-modify">
+							<select name="domain_modify" class="form-control selectpicker show-tick" multiple data-actions-box="true" data-style="btn-info" data-live-search="true" data-size="5">									
+								{% for domain in domains %}
+								<option value="{{ domain.id }}">{{ domain.name }}</option>
+								{% endfor %}
 							</select>
 						</div>
+						<label class="control-label"></label>
 					</div>
 					<div class="hr-line-dashed"></div>
 					<div class="form-group"><label class="col-sm-3 control-label">所属产品：</label>
                         <div class="col-sm-8" id="business_id-modify">
-							<select class="form-control selectpicker show-tick" name="business_id" data-style="btn-primary">
+							<select class="form-control selectpicker show-tick" name="business_id" data-style="btn-primary" data-live-search="true" data-size="5">
 								<option value="0">请选择</option>								
 								{% for business in businesses %}
 								<option value="{{ business.id }}">{{ business.name }}</option>
@@ -91,7 +93,7 @@
 					<div class="hr-line-dashed"></div>
                    <div class="form-group"><label class="col-sm-3 control-label">运行账户：</label>
                         <div class="col-sm-8" id="user_id-modify">
-							<select class="form-control selectpicker show-tick" name="user_id" data-style="btn-primary">
+							<select class="form-control selectpicker show-tick" name="user_id" data-style="btn-primary" data-live-search="true" data-size="5">
 								<option value="0">请选择</option>								
 								{% for user in g.users %}
 								<option value="{{ user.id }}">{{ user.name }}</option>
@@ -103,7 +105,7 @@
 					<div class="hr-line-dashed"></div>
                     <div class="form-group"><label class="col-sm-3 control-label">优先级：</label>
                         <div class="col-sm-8" id="priority_id-modify">
-							<select class="form-control selectpicker show-tick" name="priority_id" data-style="btn-primary">
+							<select class="form-control selectpicker show-tick" name="priority_id" data-style="btn-primary" data-live-search="true" data-size="5">
 								<option value="0">请选择</option>								
 								{% for priority in g.priorities %}
 								<option value="{{ priority.id }}">{{ priority.name }}</option>
@@ -115,7 +117,7 @@
 					<div class="hr-line-dashed"></div>
                     <div class="form-group"><label class="col-sm-3 control-label">状态：</label>
                         <div class="col-sm-8" id="status-modify">
-							<select class="form-control selectpicker show-tick" name="status" data-style="btn-primary">
+							<select class="form-control selectpicker show-tick" name="status" data-style="btn-primary" data-live-search="true" data-size="5">
 								<option value="-1">请选择</option>								
 								<option value="0">使用</option>
 								<option value="1">下线</option>

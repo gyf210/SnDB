@@ -11,7 +11,7 @@
                     <div class="hr-line-dashed"></div>
 					<div class="form-group"><label class="col-sm-3 control-label">所属机房：</label>
                         <div class="col-sm-8" id="idc_id-modify">
-							 <select class="form-control selectpicker show-tick" name="idc_id" data-style="btn-primary" data-live-search="true">
+							 <select class="form-control selectpicker show-tick" name="idc_id" data-style="btn-primary" data-live-search="true" data-size="5">
 								<option value="0">请选择</option>
 								{% for idc in idcs %}
 								<option value="{{ idc.id }}">{{ idc.name }}</option>
@@ -23,7 +23,7 @@
                     <div class="hr-line-dashed"></div>					
                     <div class="form-group"><label class="col-sm-3 control-label">主机类型：</label>
                         <div class="col-sm-8" id="host_type_id-modify">
-							<select class="form-control selectpicker show-tick" name="host_type_id" data-style="btn-primary" data-live-search="true">
+							<select class="form-control selectpicker show-tick" name="host_type_id" data-style="btn-primary" data-live-search="true" data-size="5">
 								<option value="0">请选择</option>
 								{% for host_type in host_types %}
 								<option value="{{ host_type.id }}">{{ host_type.name }}</option>
@@ -35,7 +35,7 @@
                     <div class="hr-line-dashed"></div>
                     <div class="form-group"><label class="col-sm-3 control-label">操作系统：</label>
                        <div class="col-sm-8" id="system_id-modify">
-							<select class="form-control selectpicker show-tick" name="system_id" data-style="btn-primary" data-live-search="true">
+							<select class="form-control selectpicker show-tick" name="system_id" data-style="btn-primary" data-live-search="true" data-size="5">
 								<option value="0">请选择</option>
 								{% for system in systems %}
 								<option value="{{ system.id }}">{{ system.name }}</option>
@@ -106,7 +106,7 @@
 					<div class="hr-line-dashed"></div>
                     <div class="form-group"><label class="col-sm-3 control-label">所属产品：</label>
                         <div class="col-sm-8" id="business_id-modify">
-							<select class="form-control selectpicker show-tick" name="business_id" data-style="btn-primary" data-live-search="true">
+							<select class="form-control selectpicker show-tick" name="business_id" data-style="btn-primary" data-live-search="true" data-size="5">
 								<option value="0">请选择</option>
 								{% for business in businesses %}
 								<option value="{{ business.id }}">{{ business.name }}</option>
@@ -118,7 +118,7 @@
 					<div class="hr-line-dashed"></div>
 					<div class="form-group"><label class="col-sm-3 control-label">所属环境：</label>
                         <div class="col-sm-8" id="env_id-modify">
-							 <select class="form-control selectpicker show-tick" name="env_id" data-style="btn-primary" data-live-search="true">
+							 <select class="form-control selectpicker show-tick" name="env_id" data-style="btn-primary" data-live-search="true" data-size="5">
 								<option value="0">请选择</option>
 								{% for env in envs %}
 								<option value="{{ env.id }}">{{ env.name }}</option>
@@ -137,7 +137,7 @@
 					<div class="hr-line-dashed"></div>
                     <div class="form-group"><label class="col-sm-3 control-label">主机状态：</label>
                         <div class="col-sm-8" id="status-modify">
-							<select class="form-control selectpicker show-tick" name="status" data-style="btn-primary" data-live-search="true">
+							<select class="form-control selectpicker show-tick" name="status" data-style="btn-primary" data-live-search="true" data-size="5">
 								<option value="-1">请选择</option>
 								<option value="0">使用</option>
 								<option value="1">维护</option>
