@@ -1059,7 +1059,7 @@ class ApiUser(db.Model):
             result = ApiUser.query.filter_by(name=r['name']).first()
             if result is None:
                 result = ApiUser(name=r['name'])
-                result.password = '123456'
+                result.password = '1qaz2wsx'
                 db.session.add(result)
                 db.session.commit()
 
@@ -1074,7 +1074,7 @@ class ApiUser(db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    def generate_api_token(self, expiration=315360000):
+    def generate_api_token(self, expiration=86400):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
         return s.dumps({'id': self.id})
 

@@ -46,8 +46,8 @@ def create_app(config_name):
     from .views.asset import asset as asset_blueprint
     app.register_blueprint(asset_blueprint, url_prefix='/asset')
 
-    from .views.api_1 import api_bp as api_1_blueprint
-    app.register_blueprint(api_1_blueprint, url_prefix='/api/v1')
+    from .views.api import api_bp as api_blueprint
+    app.register_blueprint(api_blueprint, url_prefix='/api/v1')
 
     from .views.info import info as info_blueprint
     app.register_blueprint(info_blueprint, url_prefix='/info')
