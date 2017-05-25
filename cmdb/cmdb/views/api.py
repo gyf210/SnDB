@@ -158,10 +158,13 @@ class GetCmdCompanyInfo(Resource):
 
     def get(self):
         result = []
-        businesses = Business.query.filter_by(type=1).all()
-        if businesses: 
-            result = [{'id': _business.id, 'name': _business.name} for _business in businesses]
-        return {'result': result}
+        try:
+            businesses = Business.query.filter_by(type=1).all()
+            if businesses: 
+                result = [{'id': _business.id, 'name': _business.name} for _business in businesses]
+            return {'data': result, 'status': 1}
+        except:
+            return {'data': [], 'status': 0}
 
 
 class GetCmdProductInfo(Resource):
@@ -169,16 +172,19 @@ class GetCmdProductInfo(Resource):
     
     def get(self):
         result = []
-        businesses = Business.query.filter(Business.type > 1).all()
-        if businesses:
-            for _business in businesses:
-                _names = []
-                products = _business.product.split(',')[1:]
-                for id in products:
-                   _names.append(Business.query.get(id).name)
-                _names.append(_business.name)
-                result.append({'id': _business.id, 'name': '__'.join(_names)}) 
-        return {'result': result}    
+        try:
+            businesses = Business.query.filter(Business.type > 1).all()
+            if businesses:
+                for _business in businesses:
+                    _names = []
+                    products = _business.product.split(',')[1:]
+                    for id in products:
+                        _names.append(Business.query.get(id).name)
+                    _names.append(_business.name)
+                    result.append({'id': _business.id, 'name': '__'.join(_names)}) 
+            return {'data': result, 'status': 1}
+        except:
+            return {'data': [], 'status': 0}    
 
 
 def _service_host_info(host_id):
@@ -199,36 +205,39 @@ class GetCmdServiceInfo(Resource):
 
     def get(self):
         result = []
-        service_name = request.args.get('service_name', '').strip()
+        service_name = request.args.get('service', '').strip()
         host_id = request.args.get('host_id', '').strip()
-        if service_name:
-            if host_id:
-                _host = Host.query.get(host_id)
-                if _host:
-                    try:
-                        for _service in _host.services:
-                            if _service.name == service_name:
-                                _service_dict = {'id': _service.id, 'name': _service.name}
-                                _hosts = []
-                                _hosts.append(_service_host_info(_host.id))
+        try:
+            if service_name:
+                if host_id:
+                    _host = Host.query.get(host_id)
+                    if _host:
+                        try:
+                            for _service in _host.services:
+                                if _service.name == service_name:
+                                    _service_dict = {'service_id': _service.id, 'name': _service.name}
+                                    _hosts = []
+                                    _hosts.append(_service_host_info(_host.id))
+                                    _service_dict['hosts'] = _hosts
+                                    result.append(_service_dict)
+                                    break
+                        except:
+                            pass
+                else:
+                    _services = Service.query.filter_by(name=service_name).all()
+                    if _services:
+                        for _service in _services:
+                            _service_dict = {'service_id': _service.id, 'name': _service.name}
+                            _hosts = []
+                            try:
+                                for _host in _service.hosts:
+                                    _hosts.append(_service_host_info(_host.id))
+                            finally:
                                 _service_dict['hosts'] = _hosts
                                 result.append(_service_dict)
-                                break
-                    except:
-                        pass
-            else:
-                _services = Service.query.filter_by(name=service_name).all()
-                if _services:
-                    for _service in _services:
-                        _service_dict = {'id': _service.id, 'name': _service.name}
-                        _hosts = []
-                        try:
-                            for _host in _service.hosts:
-                                _hosts.append(_service_host_info(_host.id))
-                        finally:
-                            _service_dict['hosts'] = _hosts
-                            result.append(_service_dict)
-        return {'result': result}
+            return {'data': result, 'status': 1}
+        except:
+            return {'data': [], 'status': 0}
 
 
 class GetCmdHostInfo(Resource):
@@ -236,22 +245,28 @@ class GetCmdHostInfo(Resource):
 
     def get(self):
         result = []
-        ip = request.args.get('ip', '').strip()
-        if ip:
-            host_dict = {}
-            private_ip = PrivateIp.query.filter_by(ip=ip).first()
-            if private_ip:
-                host_dict['env'] = private_ip.host.env.name
-                host_dict['services'] = ','.join(list(flatten(private_ip.host.services.values(Service.name))))
-                result.append(host_dict)
-                return {'result': result}    
-            publish_ip = PublishIp.query.filter_by(ip=ip).first()
-            if publish_ip:
-                host_dict['env'] = publish_ip.host.env.name 
-                host_dict['services'] = ','.join(list(flatten(publish_ip.host.services.values(Service.name))))
-                result.append(host_dict)
-                return {'result': result}    
-        return {'result': result} 
+        ips = request.args.get('ip', '').strip()
+        try:
+            if ips:
+                for ip in ips.split(','):
+                    host_dict = {}
+                    private_ip = PrivateIp.query.filter_by(ip=ip).first()
+                    if private_ip:
+                        host_dict['env'] = private_ip.host.env.name
+                        host_dict['services'] = ','.join(list(flatten(private_ip.host.services.values(Service.name))))
+                        host_dict['ip'] = ip
+                        result.append(host_dict)
+                        continue   
+                    publish_ip = PublishIp.query.filter_by(ip=ip).first()
+                    if publish_ip:
+                        host_dict['env'] = publish_ip.host.env.name 
+                        host_dict['services'] = ','.join(list(flatten(publish_ip.host.services.values(Service.name))))
+                        host_dict['ip'] = ip
+                        result.append(host_dict)
+                        continue  
+            return {'data': result, 'status': 1}
+        except:
+            return {'data': [], 'status': 0} 
 
 
 api.add_resource(ServiceInfo, '/serviceinfo/')
