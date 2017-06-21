@@ -182,3 +182,43 @@ def service_new_data():
         else:
             data = ''
     return jsonify({'data': data})
+
+
+@info.route('/show_list/')
+@login_required
+def show_list():
+    return render_template('info/show_list.html')
+
+
+@info.route('/show_host_data/', methods=['POST'])
+@login_required
+def show_host_data():
+    message = []
+    for idc in Idc.query.all():
+        try:
+            message.append({'name': idc.name, 'value': idc.hosts.count()})
+        except:
+            message.append({'name': idc.name, 'value': 0})
+    if message:
+        data = {'error': '', 'message': message}
+    else:
+        data = {'error': 1}
+    return jsonify(data)
+
+
+@info.route('/show_service_data/', methods=['POST'])
+@login_required
+def show_service_data():
+    message = []
+    for business in Business.query.filter(Business.type > 1).all():
+        try:
+            message.append({'name': business.name, 'value': business.services.count()})
+        except:
+            message.append({'name': business.name, 'value': 0})
+    if message:
+        data = {'error': '', 'message': message}
+    else:
+        data = {'error': 1}
+    return jsonify(data)
+
+

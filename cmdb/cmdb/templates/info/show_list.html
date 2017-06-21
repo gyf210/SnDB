@@ -1,0 +1,189 @@
+{% extends "layout.html" %}
+
+{% block link %}
+{% endblock %}
+
+{% block content %}
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>资产分布</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a>资产查询</a>
+            </li>
+            <li class="active">
+                <strong>资产分布</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+         
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+					 <h5>主机分布图</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="ibox-content">
+					<div id="host-pie" style="width:auto;height:400px;">
+					</div>
+                </div>
+            </div>
+        </div>       
+
+        <div class="col-lg-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+					 <h5>服务分布图</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="ibox-content">
+					<div id="service-pie" style="width:auto;height:400px;">
+					</div>
+                </div>
+            </div>
+        </div> 
+    </div>
+</div>
+{% endblock %}
+
+
+{% block feature %}
+{% endblock %}
+
+
+{% block script %}
+<script src="{{ url_for('static', filename='buttons/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ url_for('static', filename='DataTables/media/js/dataTables.bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='buttons/js/dataTables.buttons.min.js') }}"></script>
+<script src="{{ url_for('static', filename='buttons/js/buttons.flash.min.js') }}"></script>
+<script src="{{ url_for('static', filename='buttons/js/jszip.min.js') }}"></script>
+<script src="{{ url_for('static', filename='buttons/js/pdfmake.min.js') }}"></script>
+<script src="{{ url_for('static', filename='buttons/js/vfs_fonts.js') }}"></script>
+<script src="{{ url_for('static', filename='buttons/js/buttons.html5.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+<script src="{{ url_for('static', filename='js/jquery.cxselect.js') }}"></script>
+<script src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
+{% endblock %}
+
+
+{% block js %}
+<script>
+$(document).ready(function() {
+	var host = echarts.init(document.getElementById('host-pie'));
+	var service = echarts.init(document.getElementById('service-pie'));
+	
+	host.setOption({
+		title: {
+			text: '主机__机房分布',
+			x:'center'
+		},
+		tooltip : {
+			trigger: 'item',
+			formatter: "{a} <br/>{b}&nbsp;:&nbsp;&nbsp;{c}&nbsp;&nbsp;&nbsp;({d}%)"
+		},
+		series : [
+			{
+				name: '机房所属主机数及比例',
+				type: 'pie',
+				radius : '55%',
+				center: ['50%', '60%'],
+				data:[],
+				itemStyle: {
+					emphasis: {
+						shadowBlur: 10,
+						shadowOffsetX: 0,
+						shadowColor: 'rgba(0, 0, 0, 0.5)'
+					}
+				}
+			}
+		]
+	});
+		
+	host.showLoading();
+	$.post('/info/show_host_data/', function (data) {
+		host.hideLoading();
+		if(data.error == '') {
+			host.setOption({
+				series: [{
+					data: data.message
+				}]
+			});
+		} else {
+			host.setOption({
+				series: [{
+					data: []
+				}]
+			});		
+		}
+	});
+	
+	service.setOption({
+		title: {
+			text: '服务__业务分布',
+			x:'center'
+		},
+		tooltip : {
+			trigger: 'item',
+			formatter: "{a} <br/>{b}&nbsp;:&nbsp;&nbsp;{c}&nbsp;&nbsp;&nbsp;({d}%)"
+		},
+		series : [
+			{
+				name: '业务所属服务数及比例',
+				type: 'pie',
+				radius : '55%',
+				center: ['50%', '60%'],
+				data:[],
+				itemStyle: {
+					emphasis: {
+						shadowBlur: 10,
+						shadowOffsetX: 0,
+						shadowColor: 'rgba(0, 0, 0, 0.5)'
+					}
+				}
+			}
+		]
+	});
+		
+	service.showLoading();
+	$.post('/info/show_service_data/', function (data) {
+		service.hideLoading();
+		if(data.error == '') {
+			service.setOption({
+				series: [{
+					data: data.message
+				}]
+			});
+		} else {
+			service.setOption({
+				series: [{
+					data: []
+				}]
+			});		
+		}
+	});
+	
+});
+</script>
+{% endblock %}
+
