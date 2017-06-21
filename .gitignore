@@ -74,3 +74,4 @@ ENV/
 .ropeproject
 
 *.swp
+migrations/
