@@ -20,7 +20,7 @@ Flask-SQLAlchemy==2.1
 Flask-Uploads==0.2.1
 funcy==1.7.2
 gnureadline==6.3.3
-httpie==0.9.9
+httpie==1.0.3
 IPy==0.83
 ipython==4.0.0
 ipython-genutils==0.1.0
