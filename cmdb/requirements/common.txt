@@ -25,7 +25,7 @@ IPy==0.83
 ipython==4.0.0
 ipython-genutils==0.1.0
 itsdangerous==0.24
-Jinja2==2.9.5
+Jinja2==2.11.3
 kombu==4.0.2
 Mako==1.0.6
 MarkupSafe==0.23
