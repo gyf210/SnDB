@@ -22,7 +22,7 @@ funcy==1.7.2
 gnureadline==6.3.3
 httpie==0.9.9
 IPy==0.83
-ipython==4.0.0
+ipython==7.16.3
 ipython-genutils==0.1.0
 itsdangerous==0.24
 Jinja2==2.9.5
